@@ -5,6 +5,11 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+
     <application
 
         android:allowBackup="true"
@@ -15,9 +20,12 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                    <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>
+
         </activity>
         <activity android:name=".QRActivity">
 
