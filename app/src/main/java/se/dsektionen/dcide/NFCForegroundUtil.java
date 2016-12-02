@@ -1,4 +1,4 @@
-package com.tddd13.project.d_cide;
+package se.dsektionen.dcide;
 
 import android.app.Activity;
 import android.app.PendingIntent;

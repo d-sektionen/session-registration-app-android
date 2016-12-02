@@ -1,4 +1,4 @@
-package com.tddd13.project.d_cide;
+package se.dsektionen.dcide;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -39,12 +39,12 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(se.tddd13.project.d_cide.R.layout.activity_main);
         nfcForegroundUtil = new NFCForegroundUtil(this);
         NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        resultFailView = (TextView) findViewById(R.id.resultFailView);
-        resultOkView = (TextView) findViewById(R.id.resultOkView);
-        RadioGroup actionGroup = (RadioGroup) findViewById(R.id.action_group);
+        resultFailView = (TextView) findViewById(se.tddd13.project.d_cide.R.id.resultFailView);
+        resultOkView = (TextView) findViewById(se.tddd13.project.d_cide.R.id.resultOkView);
+        RadioGroup actionGroup = (RadioGroup) findViewById(se.tddd13.project.d_cide.R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
 
 
@@ -197,6 +197,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int id) {
-        isInRegistrationMode = id == R.id.radioAdd;
+        isInRegistrationMode = id == se.tddd13.project.d_cide.R.id.radioAdd;
     }
 }

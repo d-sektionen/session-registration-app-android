@@ -1,4 +1,4 @@
-package com.tddd13.project.d_cide;
+package se.tddd13.project.d_cide;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

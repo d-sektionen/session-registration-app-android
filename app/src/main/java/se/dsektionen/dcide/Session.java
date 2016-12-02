@@ -1,4 +1,4 @@
-package com.tddd13.project.d_cide;
+package se.dsektionen.dcide;
 
 /**
  * Created by gustavaaro on 2016-12-02.

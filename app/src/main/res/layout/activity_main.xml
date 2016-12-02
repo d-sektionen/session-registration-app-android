@@ -10,7 +10,7 @@
     android:background="@android:color/white"
     android:orientation="vertical"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.tddd13.project.d_cide.MainActivity">
+    tools:context="com.tddd13.project.d_cide.se.tddd13.project.d_cide.MainActivity">
 
 
     <TextView

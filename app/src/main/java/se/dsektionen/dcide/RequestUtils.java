@@ -1,6 +1,5 @@
-package com.tddd13.project.d_cide;
+package se.dsektionen.dcide;
 
-import android.app.DownloadManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -13,10 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by gustavaaro on 2016-12-02.
