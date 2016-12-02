@@ -1,7 +1,6 @@
 package com.tddd13.project.d_cide;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,28 +14,42 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener{
 
     private final static int PERMISSION_CAMERA = 1;
-    private final static int PERMISSION_NFC = 2;
+    private Session currentSession;
     String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.NFC};
 
     NFCForegroundUtil nfcForegroundUtil = null;
 
-    private NfcAdapter mNfcAdapter;
-    private PendingIntent mPendingIntent;
-
+    private TextView resultOkView;
+    private TextView resultFailView;
+    private boolean isInRegistrationMode = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         nfcForegroundUtil = new NFCForegroundUtil(this);
-        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        resultFailView = (TextView) findViewById(R.id.resultFailView);
+        resultOkView = (TextView) findViewById(R.id.resultOkView);
+        RadioGroup actionGroup = (RadioGroup) findViewById(R.id.action_group);
+        actionGroup.setOnCheckedChangeListener(this);
+
+
+        currentSession = null;
+
 
         if (mNfcAdapter == null) {
             Toast.makeText(this, "Den här appen kräver en enhet med NFC.", Toast.LENGTH_LONG).show();
@@ -53,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initNFCPhase(){
-    }
 
     @Override
     protected void onResume() {
@@ -85,7 +96,40 @@ public class MainActivity extends AppCompatActivity {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         v.vibrate(30);
-        Toast.makeText(this,bin2int(tag.getId()),Toast.LENGTH_LONG).show();
+        String rfid = bin2int(tag.getId());
+        ResultHandler handler = new ResultHandler() {
+            @Override
+            public void onResult(final String response,final int status) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showResult(response,status);
+                    }
+                });
+            }
+        };
+
+        if(isInRegistrationMode){
+            RequestUtils.registerUser(currentSession, rfid, handler);
+        } else {
+            RequestUtils.deleteUser(currentSession, rfid, handler);
+        }
+
+    }
+
+
+    private void showResult(String message, int status){
+        if(status == RequestUtils.STATUS_OK){
+            resultOkView.setText(message);
+            resultOkView.setVisibility(View.VISIBLE);
+            resultOkView.postDelayed(new Runnable() { public void run() { resultOkView.setVisibility(View.GONE); resultOkView.setText(""); } }, 1500);
+
+        } else {
+            resultFailView.setText(message);
+            resultFailView.setVisibility(View.VISIBLE);
+            resultFailView.postDelayed(new Runnable() { public void run() { resultFailView.setVisibility(View.GONE); resultFailView.setText(""); } }, 1500);
+
+        }
     }
 
     static String bin2int(byte[] data) {
@@ -95,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         }
         ByteBuffer bb = ByteBuffer.wrap(reverse);
 
+
         return Integer.toString(bb.getInt());
     }
 
@@ -103,10 +148,23 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == RESULT_OK && data.hasCategory("QR")){
-            Toast.makeText(this,data.getStringExtra("QRresult"),Toast.LENGTH_LONG).show();
-            initNFCPhase();
-
-        } else {
+            try {
+                JSONObject sessionJSON = new JSONObject(data.getStringExtra("QRresult"));
+                currentSession = new Session(sessionJSON.getString("session_id"),sessionJSON.getString("admin_token"));
+            }catch (JSONException e){
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                dialogBuilder.setMessage("Inte en giltig QR-kod. Försök igen.");
+                dialogBuilder.setPositiveButton("Okej", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(getApplicationContext(),QRActivity.class);
+                        intent.putExtra("noresult",true);
+                        startActivityForResult(intent,2);
+                    }
+                });
+                dialogBuilder.show();
+            }
+        } else if(data == null){
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             dialogBuilder.setMessage("Vänligen skanna sessionens QR-kod för att registrera användare.");
             dialogBuilder.setPositiveButton("Okej", new DialogInterface.OnClickListener() {
@@ -135,5 +193,10 @@ public class MainActivity extends AppCompatActivity {
                 }
         }
 
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup radioGroup, int id) {
+        isInRegistrationMode = id == R.id.radioAdd;
     }
 }

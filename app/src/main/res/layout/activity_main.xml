@@ -23,10 +23,62 @@
         android:id="@+id/textView" />
 
     <ImageView
-        android:layout_width="200dp"
-        android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:clickable="true"
+        android:id="@+id/imageView"
         android:src="@drawable/nfc_icon"
 
-        />
+        android:layout_width="130dp"
+        android:layout_height="170dp" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/action_group"
+        android:gravity="center">
+        <RadioButton
+            android:text="Registera"
+            android:layout_width="wrap_content"
+            android:paddingEnd="20dp"
+            android:checked="true"
+            android:textSize="20sp"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioAdd" />
+        <RadioButton
+            android:text="Ta bort"
+            android:paddingStart="20dp"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioDelete" />
+
+    </RadioGroup>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/resultContainer">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:visibility="gone"
+            android:id="@+id/resultOkView"
+            android:background="@color/resultOK"
+            android:fadingEdge="horizontal|vertical" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:gravity="center"
+            android:id="@+id/resultFailView"
+            android:background="@color/resultFail"/>
+
+    </LinearLayout>
 </LinearLayout>

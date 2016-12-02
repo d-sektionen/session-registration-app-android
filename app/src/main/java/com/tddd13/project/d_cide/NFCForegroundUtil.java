@@ -41,11 +41,14 @@ public class NFCForegroundUtil {
 
     public void enableForeground()
     {
+        Log.d("Demo","Foregorund enabled");
         nfc.enableForegroundDispatch(activity, intent, intentFiltersArray, techListsArray);
     }
 
     public void disableForeground()
     {
+        Log.d("Demo","Foregorund disabled");
+
         nfc.disableForegroundDispatch(activity);
     }
 
