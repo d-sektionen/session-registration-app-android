@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener{
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private TextView resultOkView;
     private TextView resultFailView;
     private boolean isInRegistrationMode = true;
+    private final String angmanKort = "4187140526";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,22 +70,28 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
 
+
     @Override
     protected void onResume() {
         super.onResume();
-        nfcForegroundUtil.enableForeground();
+        if(nfcForegroundUtil != null){
+            nfcForegroundUtil.enableForeground();
 
-        if (!nfcForegroundUtil.getNfc().isEnabled())
-        {
-            Toast.makeText(getApplicationContext(), "Aktivera NFC och tryck på tillbaka.", Toast.LENGTH_LONG).show();
-            startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+            if (!nfcForegroundUtil.getNfc().isEnabled())
+            {
+                Toast.makeText(getApplicationContext(), "Aktivera NFC och tryck på tillbaka.", Toast.LENGTH_LONG).show();
+                startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+            }
         }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        nfcForegroundUtil.disableForeground();
+        if(nfcForegroundUtil != null){
+            nfcForegroundUtil.disableForeground();
+        }
     }
 
     @Override
@@ -97,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         v.vibrate(30);
+
         String rfid = bin2int(tag.getId());
         ResultHandler handler = new ResultHandler() {
             @Override
@@ -133,16 +142,30 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
     }
 
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+
+        return new String(hexChars);
+    }
+
     static String bin2int(byte[] data) {
         byte[] reverse = new byte[data.length];
+
+        System.out.println(bytesToHex(data));
+        System.out.println("byte length: " + data.length);
         for (int i = 0; i < data.length; i++) {
             reverse[data.length-i-1] = data[i];
         }
-        ByteBuffer bb = ByteBuffer.wrap(reverse);
 
-
-        return Integer.toString(bb.getInt());
+        return Long.toString(Long.valueOf(bytesToHex(reverse),16));
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -163,6 +186,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                         startActivityForResult(intent,2);
                     }
                 });
+                dialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        Intent intent = new Intent(getApplicationContext(),QRActivity.class);
+                        intent.putExtra("noresult",true);
+                        startActivityForResult(intent,2);
+                    }
+                });
                 dialogBuilder.show();
             }
         } else if(data == null){
@@ -171,6 +202,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             dialogBuilder.setPositiveButton("Okej", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(getApplicationContext(),QRActivity.class);
+                    intent.putExtra("noresult",true);
+                    startActivityForResult(intent,2);
+                }
+            });
+            dialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
                     Intent intent = new Intent(getApplicationContext(),QRActivity.class);
                     intent.putExtra("noresult",true);
                     startActivityForResult(intent,2);

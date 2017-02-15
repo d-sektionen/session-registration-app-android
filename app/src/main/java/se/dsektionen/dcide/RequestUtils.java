@@ -27,7 +27,7 @@ class RequestUtils {
     public static final int STATUS_ERROR = 2;
 
 
-    private final static String registerURL = "https://beta.d-sektionen.se/d-sektionen_voting_back/api/voting/registration";
+    private final static String registerURL = "https://d-sektionen.se/api/voting/registration";
 
     static void registerUser(final Session session, final String userID, final ResultHandler handler){
             makeRequest(session,userID,POST,handler);
@@ -45,6 +45,8 @@ class RequestUtils {
             InputStream in = null;
             @Override
             public void run() {
+
+                System.out.println(userID);
 
                 try {
                     URL url = new URL(registerURL);
@@ -71,6 +73,8 @@ class RequestUtils {
                     wr.flush();
                     wr.close();
 
+                    int statuscode = urlConnection.getResponseCode();
+                    System.out.println(statuscode);
 
                     in = new BufferedInputStream(urlConnection.getInputStream());
 
