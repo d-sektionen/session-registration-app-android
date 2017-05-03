@@ -14,27 +14,20 @@
 
 
     <TextView
-        android:text="Skanna ett LiU-id för att registera en användare till nuvarande röstnings-session."
+        android:text="Skanna ett LiU-id med NFC för att registera en användare till nuvarande röstnings-session. Du kan även mata in id:t nedan för manuell registrering."
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:layout_marginTop="48dp"
         android:id="@+id/textView" />
 
-    <ImageView
-        android:layout_gravity="center"
-        android:clickable="true"
-        android:id="@+id/imageView"
-        android:src="@drawable/nfc_icon"
-
-        android:layout_width="130dp"
-        android:layout_height="170dp" />
 
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="25dp"
         android:id="@+id/action_group"
         android:gravity="center">
         <RadioButton
@@ -54,6 +47,43 @@
             android:id="@+id/radioDelete" />
 
     </RadioGroup>
+
+    <ImageView
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:id="@+id/imageView"
+        android:src="@drawable/nfc_icon"
+
+        android:layout_width="130dp"
+        android:layout_height="170dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="20">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/id_field"
+            android:layout_marginStart="5dp"
+            android:layout_weight="18"
+            android:hint="Mata in ett liu-ID här"
+            android:gravity="left"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/register_button"
+            android:layout_weight="2"
+            android:layout_marginRight="5dp"
+            android:text="Registrera"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+
+
 
 
     <LinearLayout

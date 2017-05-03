@@ -1,6 +1,7 @@
 package se.dsektionen.dcide;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +27,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
-public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener{
+public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener, View.OnClickListener{
 
     private final static int PERMISSION_CAMERA = 1;
     private Session currentSession;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     private TextView resultOkView;
     private TextView resultFailView;
+    private EditText idField;
+    private Button registerButton;
     private boolean isInRegistrationMode = true;
     private final String angmanKort = "4187140526";
 
@@ -49,7 +53,9 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         resultOkView = (TextView) findViewById(R.id.resultOkView);
         RadioGroup actionGroup = (RadioGroup) findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
-
+        registerButton = (Button) findViewById(R.id.register_button);
+        registerButton.setOnClickListener(this);
+        idField = (EditText) findViewById(R.id.id_field);
 
         currentSession = null;
 
@@ -127,6 +133,43 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     }
 
+    @Override
+    public void onClick(View view) {
+
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) this.getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(
+                this.getCurrentFocus().getWindowToken(), 0);
+
+        ResultHandler handler = new ResultHandler() {
+            @Override
+            public void onResult(final String response,final int status) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(status == RequestUtils.STATUS_OK) idField.setText("");
+                        showResult(response,status);
+                    }
+                });
+            }
+        };
+        String regex = "[A-za-z]{5}[0-9]{3}";
+        boolean validID = idField.getText().toString().matches(regex);
+
+
+        if(validID){
+           if(isInRegistrationMode){
+               RequestUtils.registerUser(currentSession,idField.getText().toString().toLowerCase(),handler);
+           }else {
+               RequestUtils.deleteUser(currentSession,idField.getText().toString().toLowerCase(),handler);
+           }
+        } else{
+            showResult("Inte ett giltigt Liu-ID",RequestUtils.STATUS_ERROR);
+        }
+
+    }
+
 
     private void showResult(String message, int status){
         if(status == RequestUtils.STATUS_OK){
@@ -157,8 +200,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     static String bin2int(byte[] data) {
         byte[] reverse = new byte[data.length];
 
-        System.out.println(bytesToHex(data));
-        System.out.println("byte length: " + data.length);
         for (int i = 0; i < data.length; i++) {
             reverse[data.length-i-1] = data[i];
         }
@@ -238,5 +279,12 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int id) {
         isInRegistrationMode = id == R.id.radioAdd;
+        if(isInRegistrationMode) {
+            registerButton.setText("Registrera");
+        } else{
+            registerButton.setText("Ta bort");
+        }
     }
+
+
 }
