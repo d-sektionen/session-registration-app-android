@@ -29,6 +29,11 @@
             </intent-filter>
 
         </activity>
+        <activity android:name=".NewSessionActivity"
+            android:theme="@style/full_screen_dialog"
+            android:excludeFromRecents="true"
+
+            />
         <activity android:name="se.dsektionen.dcide.QRActivity">
 
         </activity>

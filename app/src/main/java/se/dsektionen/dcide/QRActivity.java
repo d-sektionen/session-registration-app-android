@@ -23,18 +23,7 @@ public class QRActivity extends AppCompatActivity implements ZXingScannerView.Re
         super.onCreate(state);
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
         setContentView(mScannerView);
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
 
-        if(!getIntent().getBooleanExtra("noresult",false)){
-            dialogBuilder.setMessage("Skanna sessionens QR-kod för att börja registrera användare.");
-            dialogBuilder.setPositiveButton("Okej", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
-            dialogBuilder.show();
-        }
         // Set the scanner view as the content view
     }
 
