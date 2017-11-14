@@ -8,10 +8,12 @@ public class Session {
 
     private String sessionID;
     private String adminToken;
+    private String section;
 
-    public Session(String sessionID, String adminToken){
+    public Session(String sessionID, String adminToken, String section){
         this.sessionID = sessionID;
         this.adminToken = adminToken;
+        this.section = section;
     }
 
     public String getAdminToken() {
@@ -20,5 +22,9 @@ public class Session {
 
     public String getSessionID() {
         return sessionID;
+    }
+
+    public String getSection() {
+        return section;
     }
 }

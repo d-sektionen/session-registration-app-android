@@ -1,6 +1,7 @@
 package se.dsektionen.dcide;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -55,12 +57,15 @@ public class NewSessionActivity extends AppCompatActivity implements FragmentMan
         transaction.commit();
     }
 
+    @SuppressLint("RestrictedApi")
     public void onMethodQR(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_CAMERA);
         } else {
             Intent intent = new Intent(this,QRActivity.class);
-            startActivityForResult(intent,QR_REQUEST);
+            Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                    android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
+            startActivityForResult(intent,QR_REQUEST,bundle);
         }
 
     }
@@ -71,7 +76,7 @@ public class NewSessionActivity extends AppCompatActivity implements FragmentMan
         if(resultCode == RESULT_OK && data.hasCategory("QR")){
             try {
                 JSONObject sessionJSON = new JSONObject(data.getStringExtra("QRresult"));
-                onSessionInfoComplete(sessionJSON.getString("session_id"),sessionJSON.getString("admin_token"));
+                onSessionInfoComplete(sessionJSON.getString("session_id"),sessionJSON.getString("admin_token"),sessionJSON.getString("section"));
             }catch (JSONException e) {
                pickerFragment.showQRFailedView();
             }
@@ -90,10 +95,12 @@ public class NewSessionActivity extends AppCompatActivity implements FragmentMan
         }
     }
 
-    public void onSessionInfoComplete(String sessionID, String adminToken){
+    public void onSessionInfoComplete(String sessionID, String adminToken, String section){
         Intent result = new Intent();
+        System.out.println(sessionID + " " + adminToken + " " +section);
         result.putExtra("session_id",sessionID);
         result.putExtra("admin_token",adminToken);
+        result.putExtra("section",section);
         setResult(MainActivity.RESULT_OK, result);
         finish();
     }
