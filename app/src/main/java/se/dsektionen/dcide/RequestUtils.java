@@ -1,6 +1,10 @@
 package se.dsektionen.dcide;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,8 +27,8 @@ class RequestUtils {
     private static final String GET = "GET";
     private static final String POST = "POST";
     private static final String DELETE = "DELETE";
-    public static final int STATUS_OK = 1;
-    public static final int STATUS_ERROR = 2;
+    static final int STATUS_OK = 1;
+    static final int STATUS_ERROR = 2;
 
 
     private final static String registerURL = "https://d-sektionen.se/api/voting/registration";
@@ -50,7 +54,6 @@ class RequestUtils {
 
                 try {
                     URL url = new URL(registerURL);
-
                     JSONObject headerJSON = new JSONObject();
                     JSONObject dataJSON = new JSONObject();
                     headerJSON.put("session_id",session.getSessionID());
@@ -72,9 +75,6 @@ class RequestUtils {
                     wr.writeBytes(dataJSON.toString());
                     wr.flush();
                     wr.close();
-
-                    int statuscode = urlConnection.getResponseCode();
-                    System.out.println(statuscode);
 
                     in = new BufferedInputStream(urlConnection.getInputStream());
 
@@ -110,4 +110,30 @@ class RequestUtils {
         requestThread.start();
     }
 
+}
+
+class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    ImageView bmImage;
+
+    public DownloadImageTask(ImageView bmImage) {
+        this.bmImage = bmImage;
+    }
+
+    protected Bitmap doInBackground(String... urls) {
+        String urldisplay = urls[0];
+        Bitmap mIcon11 = null;
+        System.out.println(urldisplay
+        );
+        try {
+            InputStream in = new java.net.URL(urldisplay).openStream();
+            mIcon11 = BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mIcon11;
+    }
+
+    protected void onPostExecute(Bitmap result) {
+        bmImage.setImageBitmap(result);
+    }
 }

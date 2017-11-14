@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Vibrator;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,11 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+/**
+ * Created by gustavaaro on 2016-11-29.
+ */
+
 
 
 public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener, View.OnClickListener{
@@ -40,31 +47,30 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private TextView resultFailView;
     private EditText idField;
     private Button registerButton;
+    private ImageView sectionIcon;
     private boolean isInRegistrationMode = true;
-    private final String angmanKort = "4187140526";
+    private NfcAdapter mNfcAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         nfcForegroundUtil = new NFCForegroundUtil(this);
-        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         resultFailView = (TextView) findViewById(R.id.resultFailView);
         resultOkView = (TextView) findViewById(R.id.resultOkView);
-        RadioGroup actionGroup = (RadioGroup) findViewById(R.id.action_group);
-        actionGroup.setOnCheckedChangeListener(this);
         registerButton = (Button) findViewById(R.id.register_button);
         registerButton.setOnClickListener(this);
         idField = (EditText) findViewById(R.id.id_field);
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        sectionIcon = (ImageView) findViewById(R.id.sectionIcon);
+
+        RadioGroup actionGroup = (RadioGroup) findViewById(R.id.action_group);
+        actionGroup.setOnCheckedChangeListener(this);
 
         currentSession = null;
 
-
-        if (mNfcAdapter == null) {
-            Toast.makeText(this, "Den här appen kräver en enhet med NFC.", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_CAMERA);
@@ -73,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             startActivityForResult(intent,2);
         }
 
+
     }
 
 
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Override
     protected void onResume() {
         super.onResume();
-        if(nfcForegroundUtil != null){
+        if(nfcForegroundUtil != null && mNfcAdapter != null){
             nfcForegroundUtil.enableForeground();
 
             if (!nfcForegroundUtil.getNfc().isEnabled())
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     @Override
     protected void onPause() {
         super.onPause();
-        if(nfcForegroundUtil != null){
+        if(nfcForegroundUtil != null && mNfcAdapter != null){
             nfcForegroundUtil.disableForeground();
         }
     }
@@ -170,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     }
 
-
+    // Visar status-meddelande en kort stund
     private void showResult(String message, int status){
         if(status == RequestUtils.STATUS_OK){
             resultOkView.setText(message);
@@ -186,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    // Konverterar bytes till hexadecimal
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
@@ -197,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         return new String(hexChars);
     }
 
+    // Används för att då fram rätt kort-id:n som ligger lagrade som en bakvänd hex-sträng
     static String bin2int(byte[] data) {
         byte[] reverse = new byte[data.length];
 
@@ -215,7 +225,10 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         if(resultCode == RESULT_OK && data.hasCategory("QR")){
             try {
                 JSONObject sessionJSON = new JSONObject(data.getStringExtra("QRresult"));
-                currentSession = new Session(sessionJSON.getString("session_id"),sessionJSON.getString("admin_token"));
+                currentSession = new Session(sessionJSON.getString("session_id"),sessionJSON.getString("admin_token"),sessionJSON.getString("section"));
+                DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
+                imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentSession.getSection() + "-sek_logo.png");
+
             }catch (JSONException e){
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
                 dialogBuilder.setMessage("Inte en giltig QR-kod. Försök igen.");
@@ -262,6 +275,22 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Avsluta DCide?");
+        builder.setMessage("Vill du verkligen avsluta appen? Du kommer behöva skanna en ny session nästa gång du öppnar appen.");
+        builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        //Gör ingenting om man trycker nej
+        builder.setNegativeButton("Nej", null);
+        builder.show();
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -286,5 +315,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
     }
 
-
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
 }

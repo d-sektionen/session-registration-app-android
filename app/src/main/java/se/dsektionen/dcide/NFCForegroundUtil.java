@@ -8,6 +8,11 @@ import android.nfc.NfcAdapter;
 import android.nfc.tech.NfcA;
 import android.util.Log;
 
+/**
+ * Created by gustavaaro on 2016-11-29.
+ */
+
+
 public class NFCForegroundUtil {
 
     private NfcAdapter nfc;
