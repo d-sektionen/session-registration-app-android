@@ -2,10 +2,13 @@ package se.dsektionen.dcide;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +18,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.ImageButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,13 +30,16 @@ import org.json.JSONObject;
  * Created by Gustav on 2017-11-13.
  */
 
-public class NewSessionActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener{
+public class NewSessionActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, OnClickListener{
 
     FragmentManager fragmentManager;
     MethodPickerFragment pickerFragment;
+    ImageButton close;
     String[] PERMISSIONS = {Manifest.permission.CAMERA};
     private final static int PERMISSION_CAMERA = 1;
     private final static int QR_REQUEST = 2;
+    SharedPreferences preferences;
+    boolean appHasSavedSession = false;
 
 
 
@@ -44,6 +53,20 @@ public class NewSessionActivity extends AppCompatActivity implements FragmentMan
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.fragmentContainer,pickerFragment).commit();
         fragmentManager.addOnBackStackChangedListener(this);
+        close = findViewById(R.id.close_button);
+        close.setOnClickListener(this);
+        preferences = getSharedPreferences("Prefs", Activity.MODE_PRIVATE);
+
+        String lastSessionID = preferences.getString("last_used_session_id","");
+        String lastAdminToken = preferences.getString("last_used_admin_token","");
+        System.out.println(lastAdminToken);
+        System.out.println(lastSessionID);
+
+        if(lastSessionID.isEmpty() || lastAdminToken.isEmpty()) {
+            close.setVisibility(View.GONE);
+        } else {
+            appHasSavedSession = true;
+        }
 
         System.out.println("In new activity");
         this.setFinishOnTouchOutside(false);
@@ -107,11 +130,24 @@ public class NewSessionActivity extends AppCompatActivity implements FragmentMan
 
     @Override
     public void onBackPressed() {
-        if(fragmentManager.getBackStackEntryCount() > 0) fragmentManager.popBackStack();
+        if(fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStack();
+        }else if(appHasSavedSession){
+            finish();
+        }
+
 
     }
 
     @Override
     public void onBackStackChanged() {
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == close.getId()){
+            finish();
+        }
+
     }
 }
