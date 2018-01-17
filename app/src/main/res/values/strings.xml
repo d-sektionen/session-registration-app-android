@@ -1,2 +1,5 @@
 <resources>
-    <string name="app_name">D-Cide</string></resources>
+    <string name="app_name">D-Cide</string>
+    <string name="no_saved_session_found">Ingen tidigare session hittades.</string>
+    <string name="choose_one_method">Använd en av nedanstående sätt för att välja en session.</string>
+</resources>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="350dp"
+    android:background="@color/primaryTextColor"
+    android:minHeight="300dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:text="Ange sessions-ID och admin-token för sessionen."/>
+
+
+    <EditText
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Sessions-ID"
+        android:id="@+id/session_id_input"/>
+
+    <EditText
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Admin-token"
+        android:id="@+id/admin_token_input"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="@color/resultFail"
+        android:textStyle="normal"
+        android:textSize="15sp"
+        android:visibility="gone"
+        android:layout_marginStart="3dp"
+        android:id="@+id/warning_textview"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+
+            android:id="@+id/input_done_button"
+            android:text="Klar"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="30dp"
+            android:id="@+id/progressbar"
+            android:visibility="gone"/>
+
+
+    </LinearLayout>
+
+
+
+
+
+
+
+
+</LinearLayout>

@@ -9,8 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:background="@android:color/white"
     android:orientation="vertical"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="se.dsektionen.dcide.MainActivity">
+    android:paddingTop="@dimen/activity_vertical_margin">
 
 
     <TextView
@@ -18,9 +17,20 @@
         android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginTop="48dp"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
         android:id="@+id/textView" />
+
+    <TextView
+        android:text="Nuvarande session: "
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/currentSessionTV" />
 
 
     <RadioGroup

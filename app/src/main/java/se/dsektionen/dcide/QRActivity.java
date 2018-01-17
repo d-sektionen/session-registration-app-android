@@ -3,6 +3,8 @@ package se.dsektionen.dcide;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
@@ -23,26 +25,26 @@ public class QRActivity extends AppCompatActivity implements ZXingScannerView.Re
         super.onCreate(state);
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
         setContentView(mScannerView);
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+    }
 
-        if(!getIntent().getBooleanExtra("noresult",false)){
-            dialogBuilder.setMessage("Skanna sessionens QR-kod för att börja registrera användare.");
-            dialogBuilder.setPositiveButton("Okej", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            });
-            dialogBuilder.show();
-        }
-        // Set the scanner view as the content view
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Handler handler = new Handler();
         mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
-        mScannerView.startCamera();          // Start camera on resume
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mScannerView.startCamera();          // Start camera on resume
+            }
+        },400);
     }
 
     @Override
@@ -58,6 +60,12 @@ public class QRActivity extends AppCompatActivity implements ZXingScannerView.Re
         intent.addCategory("QR");
         this.setResult(RESULT_OK, intent);
         finish();
+        this.overridePendingTransition(R.anim.enter_from_right,R.anim.exit_to_left);
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 }
