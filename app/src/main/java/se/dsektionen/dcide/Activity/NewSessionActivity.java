@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.Fragment.ManualInputFragment;
 import se.dsektionen.dcide.Fragment.MethodPickerFragment;
 import se.dsektionen.dcide.R;

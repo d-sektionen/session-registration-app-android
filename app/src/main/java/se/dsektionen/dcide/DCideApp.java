@@ -33,4 +33,8 @@ public class DCideApp extends Application {
     public RequestManager getRequestManager() {
         return requestManager;
     }
+
+    public UserSessionManager getUserSessionManager() {
+        return userSessionManager;
+    }
 }
