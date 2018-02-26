@@ -1,4 +1,4 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Utilities;
 
 /**
  * Created by gustavaaro on 2016-12-02.

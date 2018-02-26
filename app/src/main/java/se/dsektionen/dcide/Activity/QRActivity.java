@@ -1,4 +1,4 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import se.dsektionen.dcide.R;
 
 /**
  * Created by gustavaaro on 2016-11-29.

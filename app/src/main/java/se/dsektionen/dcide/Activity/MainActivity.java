@@ -1,26 +1,18 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,8 +26,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
+import se.dsektionen.dcide.R;
+import se.dsektionen.dcide.Requests.DownloadImageTask;
+import se.dsektionen.dcide.Requests.RequestUtils;
+import se.dsektionen.dcide.Requests.ResultHandler;
+import se.dsektionen.dcide.Utilities.Session;
 
 /**
  * Created by gustavaaro on 2016-11-29.

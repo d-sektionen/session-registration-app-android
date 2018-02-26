@@ -17,10 +17,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name=".DCideApp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="se.dsektionen.dcide.MainActivity"
+            android:name="se.dsektionen.dcide.Activity.MainActivity"
             android:screenOrientation="portrait">
 
             <intent-filter>
@@ -32,12 +33,12 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".NewSessionActivity"
+        <activity android:name=".Activity.NewSessionActivity"
             android:theme="@style/full_screen_dialog"
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
             />
-        <activity android:name="se.dsektionen.dcide.QRActivity">
+        <activity android:name="se.dsektionen.dcide.Activity.QRActivity">
 
         </activity>
     </application>

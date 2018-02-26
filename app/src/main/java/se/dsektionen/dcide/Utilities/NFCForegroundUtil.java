@@ -1,4 +1,4 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Utilities;
 
 import android.app.Activity;
 import android.app.PendingIntent;

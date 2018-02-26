@@ -1,10 +1,6 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Requests;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,14 +13,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+
+import se.dsektionen.dcide.Utilities.Session;
 
 /**
  * Created by gustavaaro on 2016-12-02.
  */
 
-class RequestUtils {
+public class RequestUtils {
 
     private static final String GET = "GET";
     private static final String POST = "POST";
@@ -33,20 +29,21 @@ class RequestUtils {
     public static final int STATUS_ERROR = 2;
     public static final int STATUS_NOT_VALID = 3;
 
+    //OLD CLASS FOR REQUESTS, SHOULD NOT BE USED
 
 
     private final static String registerURL = "https://d-sektionen.se/api/voting/registration";
     private final static String validationURL = "https://d-sektionen.se/api/voting/session";
 
-    static void registerUser(final Session session, final String userID, final ResultHandler handler){
+    public static void registerUser(final Session session, final String userID, final ResultHandler handler){
             makeRequest(session,userID,POST,handler);
     }
 
-    static void deleteUser(final Session session, final String userID, final ResultHandler handler ){
+    public static void deleteUser(final Session session, final String userID, final ResultHandler handler ){
         makeRequest(session,userID,DELETE,handler);
     }
 
-    static void validateSession(final String sessionID, final ResultHandler handler){
+    public static void validateSession(final String sessionID, final ResultHandler handler){
         final Thread validationThread = new Thread(){
             InputStream in = null;
 
@@ -166,28 +163,3 @@ class RequestUtils {
 }
 
 
-class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-    ImageView bmImage;
-
-    public DownloadImageTask(ImageView bmImage) {
-        this.bmImage = bmImage;
-    }
-
-    protected Bitmap doInBackground(String... urls) {
-        String urldisplay = urls[0];
-        Bitmap mIcon11 = null;
-        System.out.println(urldisplay
-        );
-        try {
-            InputStream in = new java.net.URL(urldisplay).openStream();
-            mIcon11 = BitmapFactory.decodeStream(in);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return mIcon11;
-    }
-
-    protected void onPostExecute(Bitmap result) {
-        bmImage.setImageBitmap(result);
-    }
-}

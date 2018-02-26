@@ -1,12 +1,10 @@
-package se.dsektionen.dcide;
+package se.dsektionen.dcide.Fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,9 +13,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import se.dsektionen.dcide.Activity.NewSessionActivity;
+import se.dsektionen.dcide.R;
+import se.dsektionen.dcide.Requests.RequestUtils;
+import se.dsektionen.dcide.Requests.ResultHandler;
 
 /**
  * Created by Gustav on 2017-11-13.
