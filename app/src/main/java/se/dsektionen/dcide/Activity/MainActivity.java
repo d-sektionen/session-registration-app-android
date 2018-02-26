@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button registerButton;
     private ImageView sectionIcon;
     private NfcAdapter mNfcAdapter;
+    private Meeting currentMeeting;
 
 
     private boolean isInRegistrationMode = true;
@@ -87,19 +90,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String lastSessionID = preferences.getString("last_used_session_id","");
         String lastAdminToken = preferences.getString("last_used_admin_token","");
         String lastSection = preferences.getString("last_used_section","");
+        Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+        android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
+        startActivity(newSessionIntent,bundle);
 
-
-        if(lastAdminToken.isEmpty() || lastSessionID.isEmpty()){
-            Intent newSessionIntent = new Intent(this, NewSessionActivity.class);
-            Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
-                    android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
-            startActivityForResult(newSessionIntent,NEW_SESSION_REQUEST,bundle);
-        } else {
-            currentSession = new Session(lastSessionID,lastAdminToken,lastSection);
-            currentSessionTV.setText("Nuvarande session: " + currentSession.getSessionID());
-            DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
-            imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentSession.getSection() + "-sek_logo.png");
-        }
 
     }
 
@@ -126,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,6 +182,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
             }
         }
+
+        currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
+        if(currentMeeting != null){
+            currentSessionTV.setText("Nuvarande session: " + currentMeeting.getName());
+            DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
+            imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentMeeting.getSection().getName().substring(0,1).toLowerCase()+ "-sek_logo.png");
+        }
+
     }
 
 
@@ -193,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent newSessionIntent = new Intent(this, NewSessionActivity.class);
+        Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
         Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
         startActivityForResult(newSessionIntent,NEW_SESSION_REQUEST,bundle);

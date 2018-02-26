@@ -8,7 +8,7 @@ import org.json.JSONObject;
  * Created by gustavaaro on 2018-02-26.
  */
 
-public interface RequestCallback {
+public interface JsonObjectRequestCallback {
 
     void onRequestSuccess(JSONObject response);
 

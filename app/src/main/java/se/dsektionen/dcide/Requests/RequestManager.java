@@ -1,5 +1,4 @@
 package se.dsektionen.dcide.Requests;
-import android.util.Base64;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -10,6 +9,7 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -22,8 +22,7 @@ import se.dsektionen.dcide.DCideApp;
 
 public class RequestManager {
 
-    private final static String baseUrl = "";
-    private final static String authURL = baseUrl + "";
+    private final static String baseUrl = "https://dsek-api-dev.herokuapp.com/voting";
 
     private final static int POST = 1;
     private final static int GET = 0;
@@ -43,50 +42,71 @@ public class RequestManager {
     }
 
     private String getJWT(){
-        //return DCideApp.getInstance().getSessionManager().getJWTtoken();
-        return "";
+       return DCideApp.getInstance().getUserSessionManager().getToken();
     }
 
-    public void doGetRequest(String subURL, RequestCallback callback){
+    public void doGetRequest(String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(GET,null,subURL,callback);
     }
+    public void doGetArrayRequest(String subURL, JsonArrayRequestCallback callback){
+        doJsonArrayRequest(GET,null,subURL,callback);
+    }
 
-    public void doPostRequest(JSONObject jsonRequest, String subURL, RequestCallback callback){
+    public void doPostRequest(JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(POST,jsonRequest,subURL,callback);
     }
 
-    public void doPutRequest(JSONObject jsonRequest, String subURL, RequestCallback callback){
+    public void doPutRequest(JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(PUT,jsonRequest,subURL,callback);
     }
 
-    public void doDeleteRequest(String subURL, RequestCallback callback){
+    public void doDeleteRequest(String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(DELETE,null,subURL,callback);
     }
 
-    public void doPatchRequest(JSONObject jsonRequest, String subURL, RequestCallback callback){
+    public void doPatchRequest(JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(PATCH,jsonRequest,subURL,callback);
     }
 
-    public void doBasicAuthRequest(String username, String password, RequestCallback callback){
-        HashMap<String, String> params = new HashMap<>();
-        String creds = String.format("%s:%s",username, password);
-        String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
-        params.put("Authorization", auth);
-        queueRequest(null,authURL,GET,params,callback);
-    }
-
-
-    private void doJsonRequest(int method, JSONObject jsonRequest, String subURL, RequestCallback callback){
+    private void doJsonRequest(int method, JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
         String url = baseUrl + subURL;
         HashMap<String, String> authHeader = new HashMap<>();
-        authHeader.put("Authorization","Bearer " + getJWT());
-        queueRequest(jsonRequest,url,method,authHeader,callback);
+        authHeader.put("Authorization","JWT " + getJWT());
+        queueJsonObjectRequest(jsonRequest,url,method,authHeader,callback);
     }
 
-    private void queueRequest(final JSONObject jsonRequest, String url, final int method, HashMap<String, String> headers, final RequestCallback callback){
-        AuthenticatedRequest jsonObjectRequest = new AuthenticatedRequest(method, url, jsonRequest, headers, new Response.Listener<JSONObject>() {
+    private void doJsonArrayRequest(int method, JSONArray jsonRequest, String subUrl, JsonArrayRequestCallback callback){
+        String url = baseUrl + subUrl;
+        HashMap<String, String> authHeader = new HashMap<>();
+        authHeader.put("Authorization","JWT " + getJWT());
+        queueJsonArrayRequest(jsonRequest,url,method,authHeader,callback);
+    }
+
+    private void queueJsonObjectRequest(final JSONObject jsonRequest, String url, final int method, HashMap<String, String> headers, final JsonObjectRequestCallback callback){
+        AuthenticatedJsonObjectRequest jsonObjectRequest = new AuthenticatedJsonObjectRequest(method, url, jsonRequest, headers, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                callback.onRequestSuccess(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onRequestFail(error);
+            }
+        });
+
+        try {
+            System.out.println(jsonObjectRequest.getHeaders().toString());
+        }catch (Exception e){
+            e.fillInStackTrace();
+        }
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void queueJsonArrayRequest(final JSONArray jsonRequest, String url, final int method, HashMap<String, String> headers, final JsonArrayRequestCallback callback){
+        AuthenticatedJsonArrayRequest jsonObjectRequest = new AuthenticatedJsonArrayRequest(method, url, jsonRequest, headers, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
                 callback.onRequestSuccess(response);
             }
         }, new Response.ErrorListener() {

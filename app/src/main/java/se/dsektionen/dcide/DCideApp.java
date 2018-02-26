@@ -3,6 +3,7 @@ package se.dsektionen.dcide;
 import android.app.Application;
 
 import se.dsektionen.dcide.Requests.RequestManager;
+import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.UserSessionManager;
 
 /**
@@ -14,6 +15,7 @@ public class DCideApp extends Application {
     private static DCideApp instance;
     private RequestManager requestManager;
     private UserSessionManager userSessionManager;
+    private MeetingManager meetingManager;
 
 
 
@@ -27,6 +29,7 @@ public class DCideApp extends Application {
         instance = this;
         requestManager = new RequestManager();
         userSessionManager = new UserSessionManager(this);
+        meetingManager = new MeetingManager();
     }
 
 
@@ -36,5 +39,9 @@ public class DCideApp extends Application {
 
     public UserSessionManager getUserSessionManager() {
         return userSessionManager;
+    }
+
+    public MeetingManager getMeetingManager() {
+        return meetingManager;
     }
 }

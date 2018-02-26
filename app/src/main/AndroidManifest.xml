@@ -37,7 +37,7 @@
             android:name="se.dsektionen.dcide.Activity.MainActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".Activity.NewSessionActivity"
+        <activity android:name=".Activity.ChooseMeetingActivity"
             android:theme="@style/full_screen_dialog"
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
