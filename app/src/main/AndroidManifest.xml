@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="se.dsektionen.dcide.Activity.LoginActivity"
+            android:name="se.dsektionen.dcide.Activities.LoginActivity"
             android:screenOrientation="portrait">
 
             <intent-filter>
@@ -34,15 +34,15 @@
 
         </activity>
         <activity
-            android:name="se.dsektionen.dcide.Activity.MainActivity"
+            android:name="se.dsektionen.dcide.Activities.MainActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".Activity.ChooseMeetingActivity"
+        <activity android:name=".Activities.ChooseMeetingActivity"
             android:theme="@style/full_screen_dialog"
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
             />
-        <activity android:name="se.dsektionen.dcide.Activity.QRActivity">
+        <activity android:name="se.dsektionen.dcide.Activities.QRActivity">
 
         </activity>
     </application>

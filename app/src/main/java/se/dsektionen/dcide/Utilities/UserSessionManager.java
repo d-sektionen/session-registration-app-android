@@ -7,16 +7,14 @@ import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.Scanner;
-import se.dsektionen.dcide.Requests.JsonArrayRequestCallback;
-import se.dsektionen.dcide.Requests.JsonObjectRequestCallback;
-import se.dsektionen.dcide.Requests.MeetingRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.JsonArrayRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
 import se.dsektionen.dcide.Requests.RequestManager;
 
 /**

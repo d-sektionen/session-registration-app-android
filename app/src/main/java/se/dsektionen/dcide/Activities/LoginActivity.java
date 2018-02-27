@@ -1,4 +1,4 @@
-package se.dsektionen.dcide.Activity;
+package se.dsektionen.dcide.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

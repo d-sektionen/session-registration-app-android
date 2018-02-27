@@ -1,18 +1,22 @@
-package se.dsektionen.dcide.Activity;
+package se.dsektionen.dcide.Activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,12 +32,11 @@ import android.widget.Toast;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
+import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
-import se.dsektionen.dcide.Requests.RequestUtils;
-import se.dsektionen.dcide.Requests.ResultHandler;
-import se.dsektionen.dcide.Utilities.Session;
 
 /**
  * Created by gustavaaro on 2016-11-29.
@@ -43,9 +46,6 @@ import se.dsektionen.dcide.Utilities.Session;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener{
 
-    private final static int PERMISSION_CAMERA = 1;
-    private Session currentSession;
-    String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.NFC};
 
     NFCForegroundUtil nfcForegroundUtil = null;
 
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView resultOkView;
     private TextView resultFailView;
     private TextView currentSessionTV;
+    private TextView nfcWarningTV;
     private EditText idField;
     private Button registerButton;
     private ImageView sectionIcon;
@@ -60,12 +61,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Meeting currentMeeting;
 
 
+    private MeetingManager meetingManager;
+
     private boolean isInRegistrationMode = true;
-    public final static int NEW_SESSION_REQUEST = 20;
 
-    private SharedPreferences preferences;
-
-    @SuppressLint("RestrictedApi")
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if(Build.VERSION.SDK_INT >= 18 && action != null){
+                if (action.equals(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED)) {
+                    updateNFCView();
+                }
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,23 +89,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         sectionIcon = findViewById(R.id.sectionIcon);
         idField = findViewById(R.id.id_field);
         currentSessionTV = findViewById(R.id.currentSessionTV);
+        nfcWarningTV = findViewById(R.id.nfc_warning_view);
+
+        meetingManager = DCideApp.getInstance().getMeetingManager();
+
         RadioGroup actionGroup = findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
-
-        preferences = getSharedPreferences("Prefs",MODE_PRIVATE);
-
-        String lastSessionID = preferences.getString("last_used_session_id","");
-        String lastAdminToken = preferences.getString("last_used_admin_token","");
-        String lastSection = preferences.getString("last_used_section","");
-        Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
-        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
-        android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
-        startActivity(newSessionIntent,bundle);
-
-
+        chooseMeeting();
     }
 
     @Override
@@ -104,23 +106,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(nfcForegroundUtil != null && mNfcAdapter != null){
             nfcForegroundUtil.disableForeground();
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == NEW_SESSION_REQUEST && resultCode == RESULT_OK){
-            currentSession = new Session(data.getStringExtra("session_id"),data.getStringExtra("admin_token"),data.getStringExtra("section"));
-            preferences.edit().putString("last_used_session_id",data.getStringExtra("session_id")).apply();
-            preferences.edit().putString("last_used_admin_token",data.getStringExtra("admin_token")).apply();
-            preferences.edit().putString("last_used_section",data.getStringExtra("section")).apply();
-            currentSessionTV.setText("Nuvarande session: " + currentSession.getSessionID());
-            DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
-            imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentSession.getSection() + "-sek_logo.png");
-        }
+        this.unregisterReceiver(mReceiver);
 
     }
+
 
 
     @Override
@@ -131,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // Visar status-meddelande en kort stund
-    private void showResult(String message, int status){
-        if(status == RequestUtils.STATUS_OK){
+    private void showResult(String message, boolean success){
+        if(success){
             resultOkView.setText(message);
             resultOkView.setVisibility(View.VISIBLE);
             resultOkView.postDelayed(new Runnable() { public void run() { resultOkView.setVisibility(View.GONE); resultOkView.setText(""); } }, 1500);
@@ -173,34 +162,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        if(nfcForegroundUtil != null && mNfcAdapter != null && currentSession != null){
+        IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
+        this.registerReceiver(mReceiver, filter);
+        if(nfcForegroundUtil != null && mNfcAdapter != null && currentMeeting != null){
             nfcForegroundUtil.enableForeground();
-
-          if (!nfcForegroundUtil.getNfc().isEnabled())
-            {
-                Toast.makeText(getApplicationContext(), "Aktivera NFC och tryck på tillbaka.", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-            }
         }
-
         currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
+        Log.d("TAG", " Is null: " + Boolean.toString(currentMeeting == null));
+
         if(currentMeeting != null){
-            currentSessionTV.setText("Nuvarande session: " + currentMeeting.getName());
+            currentSessionTV.setText("Nuvarande session: " + currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
             DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
             imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentMeeting.getSection().getName().substring(0,1).toLowerCase()+ "-sek_logo.png");
         }
 
+        updateNFCView();
     }
 
+
+    private void updateNFCView(){
+        if(nfcForegroundUtil.getNfc() != null){
+            if (!nfcForegroundUtil.getNfc().isEnabled()) {
+                nfcWarningTV.setVisibility(View.VISIBLE);
+            } else {
+                nfcWarningTV.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
+    private void chooseMeeting(){
+        Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
+        startActivity(newSessionIntent,bundle);
+    }
 
 
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
-        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
-        startActivityForResult(newSessionIntent,NEW_SESSION_REQUEST,bundle);
+        chooseMeeting();
         return super.onOptionsItemSelected(item);
     }
 
@@ -222,37 +224,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-
         InputMethodManager inputMethodManager =
                 (InputMethodManager) this.getSystemService(
                         Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(
                 this.getCurrentFocus().getWindowToken(), 0);
 
-        ResultHandler handler = new ResultHandler() {
-            @Override
-            public void onResult(final String response,final int status) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(status == RequestUtils.STATUS_OK) idField.setText("");
-                        showResult(response,status);
-                    }
-                });
-            }
-        };
         String regex = "[A-za-z]{5}[0-9]{3}";
         boolean validID = idField.getText().toString().matches(regex);
 
 
         if(validID){
             if(isInRegistrationMode){
-                RequestUtils.registerUser(currentSession,idField.getText().toString().toLowerCase(),handler);
+                meetingManager.addAttendant(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
+                    @Override
+                    public void onAttendantAdded() {
+                        showResult("Deltagare tillagd",true);
+                    }
+
+                    @Override
+                    public void addAttendantFailed() {
+                        showResult("Misslyckades att lägga till deltagare",false);
+
+                    }
+                });
             }else {
-                RequestUtils.deleteUser(currentSession,idField.getText().toString().toLowerCase(),handler);
+                //TODO: deleta user somehow
             }
         } else{
-            showResult("Inte ett giltigt Liu-ID",RequestUtils.STATUS_ERROR);
+            showResult("Inte ett giltigt Liu-ID",false);
         }
 
     }
@@ -269,22 +269,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         v.vibrate(30);
 
         String rfid = bin2int(tag.getId());
-        ResultHandler handler = new ResultHandler() {
-            @Override
-            public void onResult(final String response,final int status) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showResult(response,status);
-                    }
-                });
-            }
-        };
-
         if(isInRegistrationMode){
-            RequestUtils.registerUser(currentSession, rfid, handler);
+            meetingManager.addAttendant(rfid, new AddAttendantCallback() {
+                @Override
+                public void onAttendantAdded() {
+                    showResult("Deltagare tillagd",true);
+                }
+
+                @Override
+                public void addAttendantFailed() {
+                    showResult("Misslyckades att lägga till deltagare",false);
+                }
+            });
         } else {
-            RequestUtils.deleteUser(currentSession, rfid, handler);
+            //TODO: deleta user somehow
         }
 
     }

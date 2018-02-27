@@ -15,6 +15,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.Requests.Callbacks.JsonArrayRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 
 /**
  * Created by gustavaaro on 2018-02-15.
@@ -71,14 +73,14 @@ public class RequestManager {
     private void doJsonRequest(int method, JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
         String url = baseUrl + subURL;
         HashMap<String, String> authHeader = new HashMap<>();
-        authHeader.put("Authorization","JWT " + getJWT());
+        authHeader.put("Authorization"," JWT " + getJWT());
         queueJsonObjectRequest(jsonRequest,url,method,authHeader,callback);
     }
 
     private void doJsonArrayRequest(int method, JSONArray jsonRequest, String subUrl, JsonArrayRequestCallback callback){
         String url = baseUrl + subUrl;
         HashMap<String, String> authHeader = new HashMap<>();
-        authHeader.put("Authorization","JWT " + getJWT());
+        authHeader.put("Authorization"," JWT " + getJWT());
         queueJsonArrayRequest(jsonRequest,url,method,authHeader,callback);
     }
 
@@ -95,11 +97,6 @@ public class RequestManager {
             }
         });
 
-        try {
-            System.out.println(jsonObjectRequest.getHeaders().toString());
-        }catch (Exception e){
-            e.fillInStackTrace();
-        }
         requestQueue.add(jsonObjectRequest);
     }
 
@@ -116,11 +113,6 @@ public class RequestManager {
             }
         });
 
-        try {
-            System.out.println(jsonObjectRequest.getHeaders().toString());
-        }catch (Exception e){
-            e.fillInStackTrace();
-        }
         requestQueue.add(jsonObjectRequest);
     }
 

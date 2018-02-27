@@ -11,6 +11,25 @@
     android:orientation="vertical"
     android:paddingTop="@dimen/activity_vertical_margin">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:id="@+id/nfc_warning_view"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        android:textColor="@color/resultFail"
+        android:text="NFC är inte aktiverat. Aktivera NFC för att skanna Liu-kort."/>
 
     <TextView
         android:text="Skanna ett LiU-id med NFC för att registera en användare till nuvarande röstnings-session. Du kan även mata in id:t nedan för manuell registrering."
@@ -91,10 +110,6 @@
 
     </LinearLayout>
 
-
-
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -120,4 +135,11 @@
             android:background="@color/resultFail"/>
 
     </LinearLayout>
+
+
+    </LinearLayout>
+
+    </ScrollView>
+
+
 </LinearLayout>

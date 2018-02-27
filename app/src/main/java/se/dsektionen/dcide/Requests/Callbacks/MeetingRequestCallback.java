@@ -1,4 +1,4 @@
-package se.dsektionen.dcide.Requests;
+package se.dsektionen.dcide.Requests.Callbacks;
 
 import java.util.ArrayList;
 
@@ -10,6 +10,7 @@ import se.dsektionen.dcide.JsonModels.Meeting;
 
 public interface MeetingRequestCallback {
 
-    public void onGetMeetings(ArrayList<Meeting> meetings);
+    void onGetMeetings(ArrayList<Meeting> meetings);
 
+    void onFail();
 }

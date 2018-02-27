@@ -1,4 +1,4 @@
-package se.dsektionen.dcide.Requests;
+package se.dsektionen.dcide.Requests.Callbacks;
 
 import com.android.volley.VolleyError;
 
