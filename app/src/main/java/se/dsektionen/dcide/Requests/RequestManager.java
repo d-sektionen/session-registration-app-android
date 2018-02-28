@@ -62,7 +62,7 @@ public class RequestManager {
         doJsonRequest(PUT,jsonRequest,subURL,callback);
     }
 
-    public void doDeleteRequest(String subURL, JsonObjectRequestCallback callback){
+    public void doDeleteRequest( String subURL, JsonObjectRequestCallback callback){
         doJsonRequest(DELETE,null,subURL,callback);
     }
 

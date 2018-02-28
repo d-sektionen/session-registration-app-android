@@ -29,10 +29,8 @@ import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
  * Created by Gustav on 2017-11-13.
  */
 
-public class ChooseMeetingActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener, OnClickListener{
+public class ChooseMeetingActivity extends AppCompatActivity{
 
-    ImageButton close;
-    SharedPreferences preferences;
     ListView meetingListview;
     DCideApp mApp;
     ProgressBar progressBar;
@@ -67,6 +65,7 @@ public class ChooseMeetingActivity extends AppCompatActivity implements Fragment
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mApp.getMeetingManager().setMeeting((Meeting) view.getTag());
+                setResult(RESULT_OK);
                 finish();
             }
         });
@@ -75,23 +74,9 @@ public class ChooseMeetingActivity extends AppCompatActivity implements Fragment
         this.setFinishOnTouchOutside(false);
     }
 
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-
-
-    @Override
-    public void onBackStackChanged() {
-    }
-
-    @Override
-    public void onClick(View v) {
-        if(v.getId() == close.getId()){
-            finish();
-        }
-
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

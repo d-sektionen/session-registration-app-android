@@ -12,7 +12,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:id="@+id/choose_meeting_text_view"
-        android:text="Välj det möte du vill registrera användare för:"/>
+        android:text="Välj det möte du vill registrera deltagare för"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -22,6 +22,12 @@
         android:id="@+id/no_sessions_available_warning"
         android:visibility="gone"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="#607D8B"/>
+
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,7 +36,9 @@
         />
 
     <ListView
+        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
+        android:dividerHeight="1dp"
         android:layout_height="wrap_content"
         android:id="@+id/meeting_listView">
 

@@ -8,5 +8,5 @@ public interface RemoveAttendantCallback {
 
     void onRemoveAttendant();
 
-    void removeAttendantFailed();
+    void removeAttendantFailed(String error);
 }

@@ -23,19 +23,19 @@
         <activity
             android:name="se.dsektionen.dcide.Activities.LoginActivity"
             android:screenOrientation="portrait">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="android.nfc.action.TAG_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                    <action android:name="android.nfc.action.TECH_DISCOVERED" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name="se.dsektionen.dcide.Activities.MainActivity"
             android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+            </intent-filter>
         </activity>
         <activity android:name=".Activities.ChooseMeetingActivity"
             android:theme="@style/full_screen_dialog"

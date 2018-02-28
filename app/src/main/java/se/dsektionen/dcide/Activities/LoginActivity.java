@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity implements LoginWebViewClie
         finish();
     }
 
+
     @SuppressLint("SetJavaScriptEnabled")
     private void initializeWebView(WebView webView) {
         WebSettings webSettings = webView.getSettings();

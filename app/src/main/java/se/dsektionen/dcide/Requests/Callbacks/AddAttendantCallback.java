@@ -6,7 +6,7 @@ package se.dsektionen.dcide.Requests.Callbacks;
 
 public interface AddAttendantCallback {
 
-    void onAttendantAdded();
+    void onAttendantAdded(String response);
 
-    void addAttendantFailed();
+    void addAttendantFailed(String error);
 }

@@ -5,6 +5,6 @@
     <color name="colorPrimaryDark">#001064</color>
     <color name="primaryTextColor">#ffffff</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="resultOK">#00e676</color>
-    <color name="resultFail">#ff1744</color>
+    <color name="resultOK">#4CAF50</color>
+    <color name="resultFail">#FFFF0000</color>
 </resources>

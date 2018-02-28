@@ -12,10 +12,17 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Build;
 import android.os.Vibrator;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,9 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import javax.xml.datatype.Duration;
+
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
+import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
 import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 import se.dsektionen.dcide.R;
@@ -49,9 +59,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     NFCForegroundUtil nfcForegroundUtil = null;
 
-
-    private TextView resultOkView;
-    private TextView resultFailView;
     private TextView currentSessionTV;
     private TextView nfcWarningTV;
     private EditText idField;
@@ -59,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView sectionIcon;
     private NfcAdapter mNfcAdapter;
     private Meeting currentMeeting;
+    private CoordinatorLayout coordinatorLayout;
+
+    private final int MEETING_REQUEST = 3;
 
 
     private MeetingManager meetingManager;
@@ -82,14 +92,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         nfcForegroundUtil = new NFCForegroundUtil(this);
-        resultFailView = findViewById(R.id.resultFailView);
-        resultOkView = findViewById(R.id.resultOkView);
         registerButton = findViewById(R.id.register_button);
         registerButton.setOnClickListener(this);
         sectionIcon = findViewById(R.id.sectionIcon);
         idField = findViewById(R.id.id_field);
         currentSessionTV = findViewById(R.id.currentSessionTV);
         nfcWarningTV = findViewById(R.id.nfc_warning_view);
+        coordinatorLayout = findViewById(R.id.snackbarPosition);
 
         meetingManager = DCideApp.getInstance().getMeetingManager();
 
@@ -121,15 +130,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // Visar status-meddelande en kort stund
     private void showResult(String message, boolean success){
+
         if(success){
-            resultOkView.setText(message);
-            resultOkView.setVisibility(View.VISIBLE);
-            resultOkView.postDelayed(new Runnable() { public void run() { resultOkView.setVisibility(View.GONE); resultOkView.setText(""); } }, 1500);
+            SpannableStringBuilder snackBarText = new SpannableStringBuilder();
+            snackBarText.append(message);
+            snackBarText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.resultOK)), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            snackBarText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            Snackbar.make(coordinatorLayout, snackBarText, 2000).show();
 
         } else {
-            resultFailView.setText(message);
-            resultFailView.setVisibility(View.VISIBLE);
-            resultFailView.postDelayed(new Runnable() { public void run() { resultFailView.setVisibility(View.GONE); resultFailView.setText(""); } }, 1500);
+            SpannableStringBuilder snackBarText = new SpannableStringBuilder();
+            snackBarText.append(message);
+            snackBarText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.resultFail)), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            snackBarText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            Snackbar.make(coordinatorLayout, snackBarText, 2000).show();
 
         }
     }
@@ -164,11 +178,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
         this.registerReceiver(mReceiver, filter);
-        if(nfcForegroundUtil != null && mNfcAdapter != null && currentMeeting != null){
+        if(nfcForegroundUtil != null && mNfcAdapter != null){
             nfcForegroundUtil.enableForeground();
         }
         currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
-        Log.d("TAG", " Is null: " + Boolean.toString(currentMeeting == null));
 
         if(currentMeeting != null){
             currentSessionTV.setText("Nuvarande session: " + currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
@@ -181,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void updateNFCView(){
-        if(nfcForegroundUtil.getNfc() != null){
+        if(mNfcAdapter != null){
             if (!nfcForegroundUtil.getNfc().isEnabled()) {
                 nfcWarningTV.setVisibility(View.VISIBLE);
             } else {
@@ -191,15 +204,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @SuppressLint("RestrictedApi")
     private void chooseMeeting(){
         Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
         Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
-        startActivity(newSessionIntent,bundle);
+        startActivityForResult(newSessionIntent,MEETING_REQUEST,bundle);
     }
 
 
-    @SuppressLint("RestrictedApi")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         chooseMeeting();
@@ -223,6 +236,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == MEETING_REQUEST && resultCode == RESULT_CANCELED){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Avsluta");
+            builder.setCancelable(false);
+            builder.setMessage("Vill du verkligen avsluta?");
+            builder.setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            builder.setNegativeButton("Nej", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    chooseMeeting();
+                }
+            });
+            builder.show();
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) this.getSystemService(
@@ -236,20 +273,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(validID){
             if(isInRegistrationMode){
-                meetingManager.addAttendant(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
+                meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
                     @Override
-                    public void onAttendantAdded() {
-                        showResult("Deltagare tillagd",true);
+                    public void onAttendantAdded(String response) {
+                        showResult("Deltagare " + response + " lades till",true);
                     }
 
                     @Override
-                    public void addAttendantFailed() {
-                        showResult("Misslyckades att lägga till deltagare",false);
+                    public void addAttendantFailed(String error) {
+                        showResult(error,false);
 
                     }
                 });
             }else {
-                //TODO: deleta user somehow
+                meetingManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
+                    @Override
+                    public void onRemoveAttendant() {
+                        showResult("Deltagare borttagen",true);
+                    }
+
+                    @Override
+                    public void removeAttendantFailed(String error) {
+                        showResult(error,false);
+                    }
+                });
             }
         } else{
             showResult("Inte ett giltigt Liu-ID",false);
@@ -260,7 +307,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        getTagInfo(intent);
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentMeeting != null) {
+            getTagInfo(intent);
+        }
     }
 
     private void getTagInfo(Intent intent) {
@@ -270,19 +319,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String rfid = bin2int(tag.getId());
         if(isInRegistrationMode){
-            meetingManager.addAttendant(rfid, new AddAttendantCallback() {
+            meetingManager.addAttendantWithRfid(rfid, new AddAttendantCallback() {
                 @Override
-                public void onAttendantAdded() {
-                    showResult("Deltagare tillagd",true);
+                public void onAttendantAdded(String response) {
+                    showResult(response + " lades till",true);
                 }
 
                 @Override
-                public void addAttendantFailed() {
-                    showResult("Misslyckades att lägga till deltagare",false);
+                public void addAttendantFailed(String error) {
+                    showResult(error,false);
                 }
             });
         } else {
-            //TODO: deleta user somehow
+            meetingManager.removeAttendantwithRfid(rfid, new RemoveAttendantCallback() {
+                @Override
+                public void onRemoveAttendant() {
+                    showResult("Deltagare borttagen",true);
+                }
+
+                @Override
+                public void removeAttendantFailed(String error) {
+                    showResult(error,false);
+                }
+            });
         }
 
     }
