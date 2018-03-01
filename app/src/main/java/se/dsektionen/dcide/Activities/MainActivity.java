@@ -7,13 +7,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Build;
-import android.os.Handler;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -21,51 +18,39 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-
-import java.util.concurrent.Semaphore;
-
-import javax.xml.datatype.Duration;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
+import se.dsektionen.dcide.Requests.DownloadImageTask;
 import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
-import se.dsektionen.dcide.R;
-import se.dsektionen.dcide.Requests.DownloadImageTask;
 
 /**
  * Created by gustavaaro on 2016-11-29.
  */
 
 
-
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
 
     NFCForegroundUtil nfcForegroundUtil = null;
@@ -92,13 +77,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if(Build.VERSION.SDK_INT >= 18 && action != null){
+            if (Build.VERSION.SDK_INT >= 18 && action != null) {
                 if (action.equals(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED)) {
                     updateNFCView();
                 }
             }
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,13 +125,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        if(nfcForegroundUtil != null && mNfcAdapter != null){
+        if (nfcForegroundUtil != null && mNfcAdapter != null) {
             nfcForegroundUtil.disableForeground();
         }
         this.unregisterReceiver(mReceiver);
 
     }
-
 
 
     @Override
@@ -156,9 +141,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // Visar status-meddelande en kort stund
-    private void showResult(String message, boolean success){
+    private void showResult(String message, boolean success) {
 
-        if(success){
+        if (success) {
             SpannableStringBuilder snackBarText = new SpannableStringBuilder();
             snackBarText.append(message);
             snackBarText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.resultOK)), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -180,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Konverterar bytes till hexadecimal
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
+        for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
@@ -194,10 +179,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         byte[] reverse = new byte[data.length];
 
         for (int i = 0; i < data.length; i++) {
-            reverse[data.length-i-1] = data[i];
+            reverse[data.length - i - 1] = data[i];
         }
 
-        return Long.toString(Long.valueOf(bytesToHex(reverse),16));
+        return Long.toString(Long.valueOf(bytesToHex(reverse), 16));
     }
 
     @Override
@@ -206,23 +191,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         idField.clearFocus();
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
         this.registerReceiver(mReceiver, filter);
-        if(nfcForegroundUtil != null && mNfcAdapter != null){
+        if (nfcForegroundUtil != null && mNfcAdapter != null) {
             nfcForegroundUtil.enableForeground();
         }
         currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
 
-        if(currentMeeting != null){
+        if (currentMeeting != null) {
             currentSessionTV.setText(currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
             DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
-            imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentMeeting.getSection().getName().substring(0,1).toLowerCase()+ "-sek_logo.png");
+            imageTask.execute("https://d-sektionen.se/downloads/logos/" + currentMeeting.getSection().getName().substring(0, 1).toLowerCase() + "-sek_logo.png");
         }
 
         updateNFCView();
     }
 
 
-    private void updateNFCView(){
-        if(mNfcAdapter != null){
+    private void updateNFCView() {
+        if (mNfcAdapter != null) {
             if (!nfcForegroundUtil.getNfc().isEnabled()) {
                 nfcWarningTV.setVisibility(View.VISIBLE);
             } else {
@@ -233,11 +218,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @SuppressLint("RestrictedApi")
-    private void chooseMeeting(){
+    private void chooseMeeting() {
         Intent newSessionIntent = new Intent(this, ChooseMeetingActivity.class);
         Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right).toBundle();
-        startActivityForResult(newSessionIntent,MEETING_REQUEST,bundle);
+        startActivityForResult(newSessionIntent, MEETING_REQUEST, bundle);
     }
 
 
@@ -266,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == MEETING_REQUEST && resultCode == RESULT_CANCELED){
+        if (requestCode == MEETING_REQUEST && resultCode == RESULT_CANCELED) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Avsluta");
             builder.setCancelable(false);
@@ -287,51 +272,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private boolean validateId(String id){
+    private boolean validateId(String id) {
         String regex = "[A-za-z]{5}[0-9]{3}";
         return idField.getText().toString().matches(regex);
     }
 
     @Override
     public void onClick(View v) {
-        if(validateId(idField.getText().toString())){
+        if (validateId(idField.getText().toString())) {
             idView.setError(null);
             idView.setErrorEnabled(false);
             InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
 
-            if(isInRegistrationMode){
+            if (isInRegistrationMode) {
                 meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
                     @Override
                     public void onAttendantAdded(String response) {
-                        showResult("Deltagare " + response + " lades till",true);
+                        showResult("Deltagare " + response + " lades till", true);
                     }
 
                     @Override
                     public void addAttendantFailed(String error) {
-                        showResult(error,false);
+                        showResult(error, false);
 
                     }
                 });
-            }else {
+            } else {
                 meetingManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
                     @Override
                     public void onRemoveAttendant() {
-                        showResult("Deltagare borttagen",true);
+                        showResult("Deltagare borttagen", true);
                     }
 
                     @Override
                     public void removeAttendantFailed(String error) {
-                        showResult(error,false);
+                        showResult(error, false);
                     }
                 });
             }
-        } else{
+        } else {
             idView.setErrorEnabled(true);
             idView.setError("Inte ett giltigt Liu-ID");
-            scrollView.scrollTo(0,idView.getBottom());
+            scrollView.scrollTo(0, idView.getBottom());
         }
-
 
 
     }
@@ -350,28 +334,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         v.vibrate(30);
 
         String rfid = bin2int(tag.getId());
-        if(isInRegistrationMode){
+        if (isInRegistrationMode) {
             meetingManager.addAttendantWithRfid(rfid, new AddAttendantCallback() {
                 @Override
                 public void onAttendantAdded(String response) {
-                    showResult(response + " lades till",true);
+                    showResult(response + " lades till", true);
                 }
 
                 @Override
                 public void addAttendantFailed(String error) {
-                    showResult(error,false);
+                    showResult(error, false);
                 }
             });
         } else {
             meetingManager.removeAttendantwithRfid(rfid, new RemoveAttendantCallback() {
                 @Override
                 public void onRemoveAttendant() {
-                    showResult("Deltagare borttagen",true);
+                    showResult("Deltagare borttagen", true);
                 }
 
                 @Override
                 public void removeAttendantFailed(String error) {
-                    showResult(error,false);
+                    showResult(error, false);
                 }
             });
         }
@@ -379,18 +363,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int id) {
         isInRegistrationMode = id == R.id.radioAdd;
-        if(idField.hasFocus()) {
+        if (idField.hasFocus()) {
             idField.clearFocus();
             InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
         }
-        if(isInRegistrationMode) {
+        if (isInRegistrationMode) {
             registerButton.setText("Registrera");
-        } else{
+        } else {
             registerButton.setText("Ta bort");
         }
     }
