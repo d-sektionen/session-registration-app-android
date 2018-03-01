@@ -1,8 +1,7 @@
 package se.dsektionen.dcide.Utilities;
 
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -17,21 +16,21 @@ public class LoginWebViewClient extends WebViewClient {
     }
 
     @Override
-    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-        String host = request.getUrl().getHost();
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        Uri uri = Uri.parse(url);
+        String host = uri.getHost();
         if (host.equals(successHost)) {
-            String token = request.getUrl().getQueryParameter("token");
+            String token = uri.getQueryParameter("token");
             if (tokenFoundListener != null) {
                 tokenFoundListener.onTokenFound(token);
             } else {
                 Log.w(TAG, "Token found but no listener was available for processing");
             }
-
             return true;
         }
-
-        return super.shouldOverrideUrlLoading(view, request);
+        return super.shouldOverrideUrlLoading(view, url);
     }
+
 
     public void setOnTokenFoundListener(TokenFoundListener listener) {
         this.tokenFoundListener = listener;

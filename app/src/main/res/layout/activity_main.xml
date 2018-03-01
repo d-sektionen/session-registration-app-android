@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,131 +7,131 @@
     android:orientation="vertical">
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp">
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <TextView
+        android:id="@+id/nfc_warning_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
         android:layout_marginTop="16dp"
-        android:id="@+id/nfc_warning_view"
         android:gravity="center_horizontal"
-        android:visibility="gone"
+        android:text="NFC är inte aktiverat. Aktivera NFC för att skanna Liu-kort."
         android:textColor="@color/resultFail"
-        android:text="NFC är inte aktiverat. Aktivera NFC för att skanna Liu-kort."/>
-
-    <TextView
-        android:text="Skanna ett LiU-id med NFC för att registera en användare till nuvarande röstnings-session. Du kan även mata in id:t nedan för manuell registrering."
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:textColor="@color/primaryTextColor"
-        android:layout_marginTop="20dp"
-        android:id="@+id/textView" />
+        android:visibility="gone" />
 
     <TextView
-        android:text="D-sektionens Höstmöte"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textColor="@color/primaryTextColor"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="19sp"
-        android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:id="@+id/currentSessionTV" />
+        android:gravity="center"
+        android:text="Skanna ett LiU-id med NFC för att registera en användare till nuvarande röstnings-session. Du kan även mata in id:t nedan för manuell registrering."
+        android:textColor="@color/primaryTextColor"
+        android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/currentSessionTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="D-sektionens Höstmöte"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="19sp"
+            android:textStyle="bold" />
 
 
     <RadioGroup
+        android:id="@+id/action_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="25dp"
-        android:focusable="true"
         android:animateLayoutChanges="true"
-        android:id="@+id/action_group"
-        android:gravity="center">
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="horizontal">
         <RadioButton
-            android:text="Registera"
+            android:id="@+id/radioAdd"
             android:layout_width="wrap_content"
-            android:paddingEnd="20dp"
+            android:layout_height="wrap_content"
             android:checked="true"
             android:focusable="true"
-            android:textSize="20sp"
-            android:layout_height="wrap_content"
-            android:id="@+id/radioAdd" />
+            android:paddingEnd="20dp"
+            android:text="Registera"
+            android:textSize="20sp" />
         <RadioButton
-            android:text="Ta bort"
-            android:paddingStart="20dp"
-            android:textSize="20sp"
-            android:focusable="true"
+            android:id="@+id/radioDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/radioDelete" />
+            android:focusable="true"
+            android:paddingStart="20dp"
+            android:text="Ta bort"
+            android:textSize="20sp" />
 
     </RadioGroup>
 
     <ImageView
+        android:id="@+id/sectionIcon"
+        android:layout_width="130dp"
+        android:layout_height="170dp"
         android:layout_gravity="center"
         android:clickable="true"
-        android:id="@+id/sectionIcon"
-        android:src="@drawable/nfc_icon"
-        android:layout_width="130dp"
-        android:layout_height="170dp" />
+        android:src="@drawable/nfc_icon" />
 
         <LinearLayout
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:layout_width="0px"
-            android:layout_height="0px"/>
+            android:layout_height="0px"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
 
 
         <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:animateLayoutChanges="true"
             android:id="@+id/id_field_view"
-            android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
 
             <EditText
+                android:id="@+id/id_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/id_field"
-                android:imeOptions="actionDone"
                 android:layout_marginStart="5dp"
-                android:lines="1"
-                android:nextFocusUp="@id/id_field"
-                android:nextFocusDown="@id/id_field"
-                android:singleLine="true"
-                android:inputType="textNoSuggestions"
+                android:gravity="left"
                 android:hint="Liu-ID"
-                android:gravity="left"/>
+                android:imeOptions="actionDone"
+                android:inputType="textNoSuggestions"
+                android:lines="1"
+                android:nextFocusDown="@id/id_field"
+                android:nextFocusUp="@id/id_field"
+                android:singleLine="true" />
 
         </android.support.design.widget.TextInputLayout>
 
 
         <Button
+            android:id="@+id/register_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/register_button"
-            android:layout_weight="2"
-            android:focusable="true"
-            android:textColor="@color/secondaryTextColor"
-            android:background="@color/secondaryColor"
-            android:layout_marginRight="5dp"
             android:layout_marginBottom="15dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="2"
+            android:background="@drawable/register_button_bg"
+            android:focusable="true"
+            android:gravity="center"
             android:text="Registrera"
-            android:gravity="center"/>
+            android:textColor="@color/secondaryTextColor" />
 
 
     </LinearLayout>
@@ -144,17 +143,17 @@
 
 
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/snackbarPosition"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/snackbarPosition">
+        android:layout_centerHorizontal="true">
     </android.support.design.widget.CoordinatorLayout>
     
     <FrameLayout
+        android:id="@+id/touchInterceptor"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-         android:id="@+id/touchInterceptor"/>
+        android:layout_height="match_parent" />
 
 
 </RelativeLayout>

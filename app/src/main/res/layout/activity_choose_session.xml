@@ -1,47 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:background="@drawable/popup_background"
     android:minHeight="160dp"
-    android:background="@android:color/white"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:paddingEnd="3dp"
+    android:paddingStart="3dp"
+    android:paddingTop="16dp">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
         android:id="@+id/choose_meeting_text_view"
-        android:text="Välj det möte du vill registrera deltagare för"/>
-
-    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:text="Välj det möte du vill registrera deltagare för"
+        android:textColor="@color/primaryTextColor"
         android:textSize="18sp"
-        android:textColor="@color/secondaryColor"
-        android:text="Det finns inga möten där du är tillåten registrera användare för :("
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/no_sessions_available_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Det finns inga möten där du är tillåten registrera användare för :("
+        android:textColor="@color/secondaryColor"
+        android:textSize="18sp"
         android:visibility="gone"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:background="@color/secondaryColor"/>
+        android:background="@color/primaryColor" />
 
     <ProgressBar
+        android:id="@+id/meeting_loading_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/meeting_loading_view"
+        android:layout_marginTop="16dp"
         android:visibility="visible"
         />
 
     <ListView
-        android:layout_marginTop="8dp"
+        android:id="@+id/meeting_listView"
         android:layout_width="match_parent"
-        android:dividerHeight="1dp"
         android:layout_height="wrap_content"
-        android:id="@+id/meeting_listView">
+        android:layout_marginTop="3dp"
+        android:divider="@color/secondaryLightColor"
+        android:paddingBottom="16dp">
 
     </ListView>
 

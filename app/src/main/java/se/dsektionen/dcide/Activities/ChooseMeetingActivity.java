@@ -1,18 +1,12 @@
 package se.dsektionen.dcide.Activities;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -29,7 +23,7 @@ import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
  * Created by Gustav on 2017-11-13.
  */
 
-public class ChooseMeetingActivity extends AppCompatActivity{
+public class ChooseMeetingActivity extends AppCompatActivity {
 
     ListView meetingListview;
     DCideApp mApp;
@@ -57,7 +51,7 @@ public class ChooseMeetingActivity extends AppCompatActivity{
             @Override
             public void onFail() {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(context,"Nätverksfel", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Nätverksfel", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -76,7 +70,7 @@ public class ChooseMeetingActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        if(mApp.getMeetingManager().getMeeting() == null){
+        if (mApp.getMeetingManager().getMeeting() == null) {
             setResult(RESULT_CANCELED);
         } else {
             setResult(RESULT_OK);

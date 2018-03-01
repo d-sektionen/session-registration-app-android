@@ -21,8 +21,16 @@ public class Meeting {
         return section;
     }
 
+    public void setSection(Section section) {
+        this.section = section;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isArchived() {
