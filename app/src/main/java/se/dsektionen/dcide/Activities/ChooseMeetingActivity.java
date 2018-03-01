@@ -76,7 +76,12 @@ public class ChooseMeetingActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_CANCELED);
+        if(mApp.getMeetingManager().getMeeting() == null){
+            setResult(RESULT_CANCELED);
+        } else {
+            setResult(RESULT_OK);
+        }
         finish();
+
     }
 }

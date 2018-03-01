@@ -18,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
+        android:textColor="@color/secondaryColor"
         android:text="Det finns inga möten där du är tillåten registrera användare för :("
         android:id="@+id/no_sessions_available_warning"
         android:visibility="gone"/>
@@ -26,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="16dp"
-        android:background="#607D8B"/>
+        android:background="@color/secondaryColor"/>
 
     <ProgressBar
         android:layout_width="match_parent"

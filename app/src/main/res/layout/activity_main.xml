@@ -9,8 +9,10 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
 
     <LinearLayout
@@ -22,6 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
+        android:layout_marginTop="16dp"
         android:id="@+id/nfc_warning_view"
         android:gravity="center_horizontal"
         android:visibility="gone"
@@ -34,16 +37,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
+        android:textColor="@color/primaryTextColor"
         android:layout_marginTop="20dp"
         android:id="@+id/textView" />
 
     <TextView
-        android:text="Nuvarande session: "
+        android:text="D-sektionens Höstmöte"
         android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/primaryTextColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:textSize="19sp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:id="@+id/currentSessionTV" />
@@ -54,6 +59,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="25dp"
+        android:focusable="true"
+        android:animateLayoutChanges="true"
         android:id="@+id/action_group"
         android:gravity="center">
         <RadioButton
@@ -61,6 +68,7 @@
             android:layout_width="wrap_content"
             android:paddingEnd="20dp"
             android:checked="true"
+            android:focusable="true"
             android:textSize="20sp"
             android:layout_height="wrap_content"
             android:id="@+id/radioAdd" />
@@ -68,6 +76,7 @@
             android:text="Ta bort"
             android:paddingStart="20dp"
             android:textSize="20sp"
+            android:focusable="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/radioDelete" />
@@ -82,36 +91,57 @@
         android:layout_width="130dp"
         android:layout_height="170dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:weightSum="20">
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/id_field"
-            android:layout_marginStart="5dp"
-            android:layout_weight="18"
-            android:hint="Mata in ett liu-ID här"
-            android:gravity="left"/>
+        <LinearLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_width="0px"
+            android:layout_height="0px"/>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:animateLayoutChanges="true"
+            android:id="@+id/id_field_view"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/id_field"
+                android:imeOptions="actionDone"
+                android:layout_marginStart="5dp"
+                android:lines="1"
+                android:nextFocusUp="@id/id_field"
+                android:nextFocusDown="@id/id_field"
+                android:singleLine="true"
+                android:inputType="textNoSuggestions"
+                android:hint="Liu-ID"
+                android:gravity="left"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/register_button"
             android:layout_weight="2"
+            android:focusable="true"
+            android:textColor="@color/secondaryTextColor"
+            android:background="@color/secondaryColor"
             android:layout_marginRight="5dp"
+            android:layout_marginBottom="15dp"
             android:text="Registrera"
             android:gravity="center"/>
 
-    </LinearLayout>
-
-
 
     </LinearLayout>
+
+
 
     </ScrollView>
+
+
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -120,6 +150,11 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/snackbarPosition">
     </android.support.design.widget.CoordinatorLayout>
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         android:id="@+id/touchInterceptor"/>
 
 
 </RelativeLayout>

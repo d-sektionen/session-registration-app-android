@@ -8,12 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -24,18 +28,25 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import java.util.concurrent.Semaphore;
 
 import javax.xml.datatype.Duration;
 
@@ -67,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private NfcAdapter mNfcAdapter;
     private Meeting currentMeeting;
     private CoordinatorLayout coordinatorLayout;
+    private ScrollView scrollView;
+    private TextInputLayout idView;
 
     private final int MEETING_REQUEST = 3;
 
@@ -99,15 +112,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         currentSessionTV = findViewById(R.id.currentSessionTV);
         nfcWarningTV = findViewById(R.id.nfc_warning_view);
         coordinatorLayout = findViewById(R.id.snackbarPosition);
+        scrollView = findViewById(R.id.scrollView);
+        idView = findViewById(R.id.id_field_view);
+
+        idField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    registerButton.callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
 
         meetingManager = DCideApp.getInstance().getMeetingManager();
-
         RadioGroup actionGroup = findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
-
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
         chooseMeeting();
     }
+
 
     @Override
     protected void onPause() {
@@ -176,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
+        idField.clearFocus();
         IntentFilter filter = new IntentFilter(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
         this.registerReceiver(mReceiver, filter);
         if(nfcForegroundUtil != null && mNfcAdapter != null){
@@ -184,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
 
         if(currentMeeting != null){
-            currentSessionTV.setText("Nuvarande session: " + currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
+            currentSessionTV.setText(currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
             DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
             imageTask.execute("https://d-sektionen.se/downloads/logos/"+ currentMeeting.getSection().getName().substring(0,1).toLowerCase()+ "-sek_logo.png");
         }
@@ -259,19 +287,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private boolean validateId(String id){
+        String regex = "[A-za-z]{5}[0-9]{3}";
+        return idField.getText().toString().matches(regex);
+    }
+
     @Override
     public void onClick(View v) {
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) this.getSystemService(
-                        Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(
-                this.getCurrentFocus().getWindowToken(), 0);
+        if(validateId(idField.getText().toString())){
+            idView.setError(null);
+            idView.setErrorEnabled(false);
+            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
 
-        String regex = "[A-za-z]{5}[0-9]{3}";
-        boolean validID = idField.getText().toString().matches(regex);
-
-
-        if(validID){
             if(isInRegistrationMode){
                 meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
                     @Override
@@ -299,8 +327,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
             }
         } else{
-            showResult("Inte ett giltigt Liu-ID",false);
+            idView.setErrorEnabled(true);
+            idView.setError("Inte ett giltigt Liu-ID");
+            scrollView.scrollTo(0,idView.getBottom());
         }
+
+
 
     }
 
@@ -347,9 +379,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int id) {
         isInRegistrationMode = id == R.id.radioAdd;
+        if(idField.hasFocus()) {
+            idField.clearFocus();
+            InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        }
         if(isInRegistrationMode) {
             registerButton.setText("Registrera");
         } else{
