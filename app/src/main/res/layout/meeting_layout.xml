@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="D-sektionens höstmöte"
         android:textColor="@color/primaryTextColor"
-        android:textSize="15sp"
+        android:textSize="17sp"
         android:textStyle="normal" />
 
     <TextView
@@ -24,6 +24,6 @@
         android:layout_height="wrap_content"
         android:text="D-sektionen"
         android:textColor="@color/secondaryLightColor"
-        android:textSize="13sp" />
+        android:textSize="15sp" />
 
 </LinearLayout>

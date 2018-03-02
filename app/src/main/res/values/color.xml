@@ -8,6 +8,6 @@
     <color name="secondaryDarkColor">#373737</color>
     <color name="primaryTextColor">#212121</color>
     <color name="secondaryTextColor">#fafafa</color>
-    <color name="resultOK">#69f0ae</color>
-    <color name="resultFail">#ff4081</color>
+    <color name="resultOK">#66bb6a</color>
+    <color name="resultFail">#ef5350</color>
 </resources>

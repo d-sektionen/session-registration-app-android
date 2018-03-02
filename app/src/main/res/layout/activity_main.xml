@@ -9,15 +9,15 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp">
+        android:layout_height="wrap_content">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp">
 
     <TextView
         android:id="@+id/nfc_warning_view"
@@ -147,13 +147,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:animateLayoutChanges="true">
     </android.support.design.widget.CoordinatorLayout>
-    
-    <FrameLayout
-        android:id="@+id/touchInterceptor"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
 
 </RelativeLayout>

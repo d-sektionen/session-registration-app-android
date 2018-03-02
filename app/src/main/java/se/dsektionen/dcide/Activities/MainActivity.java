@@ -12,6 +12,7 @@ import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -22,11 +23,13 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -35,6 +38,8 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import java.lang.reflect.Field;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
@@ -53,26 +58,15 @@ import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
 
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private final int MEETING_REQUEST = 3;
     NFCForegroundUtil nfcForegroundUtil = null;
-
     private TextView currentSessionTV;
     private TextView nfcWarningTV;
     private EditText idField;
     private Button registerButton;
     private ImageView sectionIcon;
     private NfcAdapter mNfcAdapter;
-    private Meeting currentMeeting;
-    private CoordinatorLayout coordinatorLayout;
-    private ScrollView scrollView;
-    private TextInputLayout idView;
-
-    private final int MEETING_REQUEST = 3;
-
-
-    private MeetingManager meetingManager;
-
-    private boolean isInRegistrationMode = true;
-
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -84,6 +78,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
+    private Meeting currentMeeting;
+    private CoordinatorLayout coordinatorLayout;
+    private ScrollView scrollView;
+    private TextInputLayout idView;
+    private MeetingManager meetingManager;
+    private boolean isInRegistrationMode = true;
+
+    // Konverterar bytes till hexadecimal
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+
+        return new String(hexChars);
+    }
+
+    // Används för att då fram rätt kort-id:n som ligger lagrade som en bakvänd hex-sträng
+    static String bin2int(byte[] data) {
+        byte[] reverse = new byte[data.length];
+
+        for (int i = 0; i < data.length; i++) {
+            reverse[data.length - i - 1] = data[i];
+        }
+
+        return Long.toString(Long.valueOf(bytesToHex(reverse), 16));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         chooseMeeting();
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -131,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.unregisterReceiver(mReceiver);
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,46 +164,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Visar status-meddelande en kort stund
     private void showResult(String message, boolean success) {
 
+        Snackbar snackbar;
+
         if (success) {
             SpannableStringBuilder snackBarText = new SpannableStringBuilder();
             snackBarText.append(message);
             snackBarText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.resultOK)), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             snackBarText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            Snackbar.make(coordinatorLayout, snackBarText, 2000).show();
-
+            snackbar = Snackbar.make(coordinatorLayout, snackBarText, Snackbar.LENGTH_LONG);
         } else {
             SpannableStringBuilder snackBarText = new SpannableStringBuilder();
             snackBarText.append(message);
             snackBarText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.resultFail)), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             snackBarText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, snackBarText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            Snackbar.make(coordinatorLayout, snackBarText, 2000).show();
-
-        }
-    }
-
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
-    // Konverterar bytes till hexadecimal
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            snackbar = Snackbar.make(coordinatorLayout, snackBarText, Snackbar.LENGTH_LONG);
         }
 
-        return new String(hexChars);
-    }
-
-    // Används för att då fram rätt kort-id:n som ligger lagrade som en bakvänd hex-sträng
-    static String bin2int(byte[] data) {
-        byte[] reverse = new byte[data.length];
-
-        for (int i = 0; i < data.length; i++) {
-            reverse[data.length - i - 1] = data[i];
+        try {
+            Field mAccessibilityManagerField = BaseTransientBottomBar.class.getDeclaredField("mAccessibilityManager");
+            mAccessibilityManagerField.setAccessible(true);
+            AccessibilityManager accessibilityManager = (AccessibilityManager) mAccessibilityManagerField.get(snackbar);
+            Field mIsEnabledField = AccessibilityManager.class.getDeclaredField("mIsEnabled");
+            mIsEnabledField.setAccessible(true);
+            mIsEnabledField.setBoolean(accessibilityManager, false);
+            mAccessibilityManagerField.set(snackbar, accessibilityManager);
+        } catch (Exception e) {
+            Log.d("Snackbar", "Reflection error: " + e.toString());
         }
+        snackbar.show();
 
-        return Long.toString(Long.valueOf(bytesToHex(reverse), 16));
     }
 
     @Override
@@ -377,4 +387,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             registerButton.setText("Ta bort");
         }
     }
+
 }
