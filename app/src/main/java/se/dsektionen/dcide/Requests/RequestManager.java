@@ -24,7 +24,7 @@ import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 
 public class RequestManager {
 
-    private final static String baseUrl = "https://dsek-api-dev.herokuapp.com/voting";
+    private final static String baseUrl = "https://dsek-api-dev.herokuapp.com";
 
     private final static int POST = 1;
     private final static int GET = 0;

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -31,6 +33,13 @@ public class LoginActivity extends AppCompatActivity implements LoginWebViewClie
         setContentView(R.layout.activity_login);
 
         WebView webView = findViewById(R.id.login_webview);
+
+
+        boolean userLoggedOut = getIntent().getBooleanExtra("logged_out", false);
+        System.out.println("User logged out: " + userLoggedOut);
+
+        if (userLoggedOut) clearCookies();
+
         initializeWebView(webView);
     }
 
@@ -41,6 +50,17 @@ public class LoginActivity extends AppCompatActivity implements LoginWebViewClie
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void clearCookies() {
+        System.out.println("Clear cookies");
+        CookieSyncManager cookieSyncMngr = CookieSyncManager.createInstance(this);
+        cookieSyncMngr.startSync();
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+        cookieManager.removeSessionCookie();
+        cookieSyncMngr.stopSync();
+        cookieSyncMngr.sync();
     }
 
 

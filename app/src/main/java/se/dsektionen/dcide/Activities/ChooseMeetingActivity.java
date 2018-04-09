@@ -1,22 +1,29 @@
 package se.dsektionen.dcide.Activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.JsonModels.User;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
 import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
 
 /**
@@ -28,6 +35,8 @@ public class ChooseMeetingActivity extends AppCompatActivity {
     ListView meetingListview;
     DCideApp mApp;
     ProgressBar progressBar;
+    TextView userInfo;
+    Button logout;
 
 
     @Override
@@ -37,6 +46,9 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_choose_session);
         meetingListview = findViewById(R.id.meeting_listView);
         progressBar = findViewById(R.id.meeting_loading_view);
+        logout = findViewById(R.id.logout_button);
+        userInfo = findViewById(R.id.logged_in_user);
+
         mApp = DCideApp.getInstance();
         setTitle("");
         final Context context = this;
@@ -60,6 +72,29 @@ public class ChooseMeetingActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mApp.getMeetingManager().setMeeting((Meeting) view.getTag());
                 setResult(RESULT_OK);
+                finish();
+            }
+        });
+
+        mApp.getUserSessionManager().getUser(new UserResponseCallback() {
+            @Override
+            public void onUserFetched(User user) {
+                userInfo.setText("Inloggad som: " + user.getFirst_name() + " " + user.getLast_name());
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mApp.getUserSessionManager().clearSession();
+                Intent intent = new Intent(mApp, LoginActivity.class);
+                intent.putExtra("logged_out", true);
+                startActivity(intent);
                 finish();
             }
         });

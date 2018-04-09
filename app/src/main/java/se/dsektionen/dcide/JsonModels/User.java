@@ -1,30 +1,24 @@
 package se.dsektionen.dcide.JsonModels;
 
 /**
- * Created by gustavaaro on 2018-02-28.
+ * Created by gustavaaro on 2018-04-09.
  */
 
-public class Attendant {
+public class User {
 
-    private int id;
-    private String username;
     private String first_name;
     private String last_name;
-
-
-    public int getId() {
-        return id;
-    }
+    private String username;
 
     public String getUsername() {
         return username;
     }
 
-    public String getFirst_name() {
-        return first_name;
-    }
-
     public String getLast_name() {
         return last_name;
+    }
+
+    public String getFirst_name() {
+        return first_name;
     }
 }

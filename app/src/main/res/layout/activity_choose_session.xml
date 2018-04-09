@@ -49,11 +49,38 @@
     <ListView
         android:id="@+id/meeting_listView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:layout_marginTop="3dp"
         android:divider="@color/secondaryLightColor"
         android:paddingBottom="16dp">
 
     </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:weightSum="10">
+
+        <TextView
+            android:id="@+id/logged_in_user"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_weight="6"
+            android:text="Inloggad som:"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/logout_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="Logga ut" />
+
+    </LinearLayout>
+
 
 </LinearLayout>

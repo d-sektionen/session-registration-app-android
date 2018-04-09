@@ -8,8 +8,6 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.concurrent.locks.Condition;
-
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Attendant;
 import se.dsektionen.dcide.JsonModels.Meeting;
@@ -27,7 +25,7 @@ public class MeetingManager {
     private Meeting meeting;
     private RequestManager requestManager;
     private Gson gson;
-    private String subUrl = "/attendants/";
+    private String subUrl = "/voting/attendants/";
 
     public MeetingManager(){
         this.requestManager = DCideApp.getInstance().getRequestManager();
@@ -55,9 +53,9 @@ public class MeetingManager {
                     try {
                         JSONObject userObject = response.getJSONObject("user");
                         Attendant attendant = gson.fromJson(userObject.toString(),Attendant.class);
-                        callback.onAttendantAdded(attendant.getUsername());
+                        callback.onAttendantAdded(attendant.getFirst_name() + " " + attendant.getLast_name());
                     }catch (JSONException e){
-                        callback.onAttendantAdded("Deltagaren registrerades");
+                        callback.addAttendantFailed("Något gick fel.");
                     }
                 }
 
@@ -94,9 +92,9 @@ public class MeetingManager {
                     try {
                         JSONObject userObject = response.getJSONObject("user");
                         Attendant attendant = gson.fromJson(userObject.toString(),Attendant.class);
-                        callback.onAttendantAdded(attendant.getUsername());
+                        callback.onAttendantAdded(attendant.getFirst_name() + " " + attendant.getLast_name());
                     }catch (JSONException e){
-                        callback.onAttendantAdded("Deltagaren registrerades");
+                        callback.addAttendantFailed("Något gick fel.");
                     }
                 }
 
