@@ -24,7 +24,7 @@ import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 
 public class RequestManager {
 
-    private final static String baseUrl = "https://dsek-api-dev.herokuapp.com";
+    public final static String BASE_URL = "https://dsek-api-dev.herokuapp.com";
 
     private final static int POST = 1;
     private final static int GET = 0;
@@ -71,14 +71,14 @@ public class RequestManager {
     }
 
     private void doJsonRequest(int method, JSONObject jsonRequest, String subURL, JsonObjectRequestCallback callback){
-        String url = baseUrl + subURL;
+        String url = BASE_URL + subURL;
         HashMap<String, String> authHeader = new HashMap<>();
         authHeader.put("Authorization"," JWT " + getJWT());
         queueJsonObjectRequest(jsonRequest,url,method,authHeader,callback);
     }
 
     private void doJsonArrayRequest(int method, JSONArray jsonRequest, String subUrl, JsonArrayRequestCallback callback){
-        String url = baseUrl + subUrl;
+        String url = BASE_URL + subUrl;
         HashMap<String, String> authHeader = new HashMap<>();
         authHeader.put("Authorization"," JWT " + getJWT());
         queueJsonArrayRequest(jsonRequest,url,method,authHeader,callback);

@@ -13,10 +13,11 @@ import android.webkit.WebView;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.R;
+import se.dsektionen.dcide.Requests.RequestManager;
 import se.dsektionen.dcide.Utilities.LoginWebViewClient;
 
 public class LoginActivity extends AppCompatActivity implements LoginWebViewClient.TokenFoundListener {
-    private static final String TOKEN_URL = "https://dsek-api-dev.herokuapp.com/account/token";
+    private static final String TOKEN_URL = RequestManager.BASE_URL + "/account/token";
     private static final String REDIRECT_HOST = "success.d-sektionen.se";
 
     private LoginWebViewClient webViewClient;
