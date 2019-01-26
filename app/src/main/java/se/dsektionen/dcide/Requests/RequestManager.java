@@ -24,7 +24,7 @@ import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 
 public class RequestManager {
 
-    public final static String BASE_URL = "https://dsek-api-dev.herokuapp.com";
+    public final static String BASE_URL = "http://192.168.1.230:8000";
 
     private final static int POST = 1;
     private final static int GET = 0;
