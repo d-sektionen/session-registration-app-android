@@ -13,17 +13,21 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.User;
 import se.dsektionen.dcide.R;
+import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
+import se.dsektionen.dcide.Utilities.EventArrayAdapter;
 import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
 
 /**
@@ -33,10 +37,13 @@ import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
 public class ChooseMeetingActivity extends AppCompatActivity {
 
     ListView meetingListview;
+    ListView eventListview;
     DCideApp mApp;
     ProgressBar progressBar;
     TextView userInfo;
     Button logout;
+    Button switchMeetingEvents;
+    ViewSwitcher listViews;
 
 
     @Override
@@ -45,7 +52,10 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_choose_session);
         meetingListview = findViewById(R.id.meeting_listView);
+        eventListview = findViewById(R.id.event_listView);
         progressBar = findViewById(R.id.meeting_loading_view);
+        listViews = findViewById(R.id.listViews);
+        switchMeetingEvents = findViewById(R.id.switch_meeting_event_button);
         logout = findViewById(R.id.logout_button);
         userInfo = findViewById(R.id.logged_in_user);
 
@@ -57,6 +67,21 @@ public class ChooseMeetingActivity extends AppCompatActivity {
             public void onGetMeetings(ArrayList<Meeting> meetings) {
                 MeetingArrayAdapter adapter = new MeetingArrayAdapter(meetings, context);
                 meetingListview.setAdapter(adapter);
+                progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFail() {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(context, "Nätverksfel", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        mApp.getUserSessionManager().getEvents(new EventRequestCallback() {
+            @Override
+            public void onGetEvents(ArrayList<Event> events) {
+                EventArrayAdapter adapter = new EventArrayAdapter(events, context);
+                eventListview.setAdapter(adapter);
                 progressBar.setVisibility(View.GONE);
             }
 
@@ -85,6 +110,13 @@ public class ChooseMeetingActivity extends AppCompatActivity {
             @Override
             public void onFail(VolleyError error) {
 
+            }
+        });
+
+        switchMeetingEvents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listViews.showNext();
             }
         });
 

@@ -12,9 +12,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Event;
+import se.dsektionen.dcide.JsonModels.EventScanner;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.Scanner;
 import se.dsektionen.dcide.JsonModels.User;
+import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonArrayRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
@@ -34,6 +37,7 @@ public class UserSessionManager {
     private User user;
 
     private String subURL = "/voting/scanners";
+    private String eventsSubURL = "/events/scanners";
 
 
     public UserSessionManager(Context context){
@@ -79,6 +83,29 @@ public class UserSessionManager {
         });
 
         return new ArrayList<Meeting>();
+    }
+
+    public ArrayList<Event> getEvents(final EventRequestCallback callback){
+
+        requestManager.doGetArrayRequest(eventsSubURL, new JsonArrayRequestCallback() {
+            @Override
+            public void onRequestSuccess(JSONArray response) {
+                Gson gson = new Gson();
+                EventScanner scanners[] = gson.fromJson(response.toString(), EventScanner[].class);
+                ArrayList<Event> events = new ArrayList<>();
+                for (EventScanner scanner: scanners){
+                    events.add(scanner.getEvent());
+                }
+                callback.onGetEvents(events);
+            }
+
+            @Override
+            public void onRequestFail(VolleyError error) {
+                System.out.println("ERROR: " + error.getMessage());
+            }
+        });
+
+        return new ArrayList<Event>();
     }
 
     public boolean hasToken(){

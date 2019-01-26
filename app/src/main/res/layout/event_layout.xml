@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/ripple_bg"
+    android:orientation="vertical"
+    android:paddingBottom="8dp"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:id="@+id/event_name_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="D-Lan 2019"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="17sp"
+        android:textStyle="normal" />
+
+    <TextView
+        android:id="@+id/event_time_interval_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1/2 18:00 till 3/2 13:00"
+        android:textColor="@color/secondaryLightColor"
+        android:textSize="15sp" />
+
+</LinearLayout>
