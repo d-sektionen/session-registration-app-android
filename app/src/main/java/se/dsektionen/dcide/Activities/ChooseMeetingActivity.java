@@ -101,6 +101,15 @@ public class ChooseMeetingActivity extends AppCompatActivity {
             }
         });
 
+        eventListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mApp.getEventManager().setEvent((Event) view.getTag());
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+
         mApp.getUserSessionManager().getUser(new UserResponseCallback() {
             @Override
             public void onUserFetched(User user) {

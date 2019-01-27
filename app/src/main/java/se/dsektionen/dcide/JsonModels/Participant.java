@@ -10,6 +10,18 @@ public class Participant {
     private String group_name;
     private String other_info;
 
+    public String getUsername() {
+        return user.getUsername();
+    }
+
+    public String getLast_name() {
+        return user.getLast_name();
+    }
+
+    public String getFirst_name() {
+        return user.getFirst_name();
+    }
+
     public int getId() {
         return id;
     }
