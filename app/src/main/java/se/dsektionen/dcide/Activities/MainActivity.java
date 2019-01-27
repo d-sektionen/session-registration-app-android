@@ -39,14 +39,21 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import java.lang.reflect.Field;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.JsonModels.Participant;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
+import se.dsektionen.dcide.Requests.Callbacks.AddParticipantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
+import se.dsektionen.dcide.Requests.Callbacks.RemoveParticipantCallback;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
+import se.dsektionen.dcide.Utilities.EventManager;
 import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 
@@ -79,10 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
     private Meeting currentMeeting;
+    private Event currentEvent;
     private CoordinatorLayout coordinatorLayout;
     private ScrollView scrollView;
     private TextInputLayout idView;
     private MeetingManager meetingManager;
+    private EventManager eventManager;
     private boolean isInRegistrationMode = true;
 
     // Konverterar bytes till hexadecimal
@@ -137,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         meetingManager = DCideApp.getInstance().getMeetingManager();
+        eventManager = DCideApp.getInstance().getEventManager();
+
         RadioGroup actionGroup = findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -205,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             nfcForegroundUtil.enableForeground();
         }
         currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
+        currentEvent = DCideApp.getInstance().getEventManager().getEvent();
 
         if (currentMeeting != null) {
             currentSessionTV.setText(currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
@@ -335,8 +347,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onNewIntent(intent);
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentMeeting != null) {
             getTagInfo(intent);
+        } else if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentEvent != null){
+            try {
+                getEventTagInfo(intent);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    private void getEventTagInfo(Intent intent) throws JSONException {
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        v.vibrate(30);
+
+        String rfid = bin2int(tag.getId());
+        if (isInRegistrationMode) {
+            eventManager.addParticipantWithRfid(rfid, new AddParticipantCallback() {
+
+                @Override
+                public void onParticipantAdded(Participant participant) {
+                    showResult(participant + " lades till", true);                }
+
+                @Override
+                public void addParticipantFailed(String error) {
+                    showResult(error, false);
+
+                }
+            });
+        } else {
+            eventManager.removeParticipantwithRfid(rfid, new RemoveParticipantCallback(){
+                @Override
+                public void onRemoveParticipant() {
+                    showResult("Deltagare borttagen", true);
+                }
+
+                @Override
+                public void removeParticipantFailed(String error) {
+                    showResult(error, false);
+                }});
+    }}
 
     private void getTagInfo(Intent intent) {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);

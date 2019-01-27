@@ -24,7 +24,7 @@ import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 
 public class RequestManager {
 
-    public final static String BASE_URL = "http://10.0.2.2:8000";
+    public final static String BASE_URL = "http://192.168.43.68:8000";
 
     private final static int POST = 1;
     private final static int GET = 0;

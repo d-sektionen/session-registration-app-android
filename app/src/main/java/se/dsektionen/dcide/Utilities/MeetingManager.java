@@ -46,7 +46,7 @@ public class MeetingManager {
         final JSONObject request = new JSONObject();
         try {
             request.put("card_id", rfid);
-            request.put("meeting",meeting.getId());
+            request.put("meeting", meeting.getId());
             requestManager.doPostRequest(request, subUrl, new JsonObjectRequestCallback() {
                 @Override
                 public void onRequestSuccess(JSONObject response) {

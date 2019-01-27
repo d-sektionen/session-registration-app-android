@@ -10,33 +10,6 @@
     android:paddingStart="3dp"
     android:paddingTop="16dp">
 
-    <TextView
-        android:id="@+id/choose_meeting_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:text="Välj det möte du vill registrera deltagare för"
-        android:textColor="@color/primaryTextColor"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/no_sessions_available_warning"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Det finns inga möten där du är tillåten registrera användare för :("
-        android:textColor="@color/secondaryColor"
-        android:textSize="18sp"
-        android:visibility="gone"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:background="@color/primaryColor" />
 
     <ProgressBar
         android:id="@+id/meeting_loading_view"
@@ -52,6 +25,35 @@
         android:layout_height="250dp"
         android:layout_marginTop="3dp"
         android:paddingBottom="16dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/choose_meeting_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="Välj det möte du vill registrera deltagare för"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/primaryColor" />
+        <TextView
+            android:id="@+id/no_sessions_available_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Det finns inga möten där du är tillåten registrera användare för :("
+            android:textColor="@color/secondaryColor"
+            android:textSize="18sp"
+            android:visibility="gone"/>
 
         <ListView
             android:id="@+id/meeting_listView"
@@ -59,14 +61,46 @@
             android:layout_height="match_parent"
             android:divider="@color/secondaryLightColor">
         </ListView>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/choose_event_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingEnd="16dp"
+            android:paddingStart="16dp"
+            android:text="Välj det event du vill registrera deltagare för"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/primaryColor" />
+
+        <TextView
+            android:id="@+id/no_events_available_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Det finns inga events där du är tillåten registrera användare för :("
+            android:textColor="@color/secondaryColor"
+            android:textSize="18sp"
+            android:visibility="gone"/>
         <ListView
             android:id="@+id/event_listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@color/secondaryLightColor">
         </ListView>
-
+    </LinearLayout>
     </ViewSwitcher>
 
     <Button
