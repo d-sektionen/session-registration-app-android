@@ -1,5 +1,6 @@
 package se.dsektionen.dcide.Utilities;
 
+import android.app.Dialog;
 import android.util.Log;
 
 import com.android.volley.VolleyError;
@@ -84,18 +85,18 @@ public class EventManager {
     }
 
     public void addParticipantWithId(String liuId, final AddParticipantCallback callback){
-        JSONObject request = new JSONObject();
+        final JSONObject request = new JSONObject();
         try {
             request.put("username", liuId);
-            request.put("action", "rfid");
-            request.put("event",event.getId());
-            System.out.println(request.toString(2));
+            request.put("action", "");
+            request.put("event", event.getId());
             requestManager.doPostRequest(request, subUrl_show_up, new JsonObjectRequestCallback() {
                 @Override
                 public void onRequestSuccess(JSONObject response) {
                     try {
-                        JSONObject userObject = response.getJSONObject("user");
-                        Participant participant = gson.fromJson(userObject.toString(),Participant.class);
+                        System.out.println("responce "+response.toString());
+                        JSONObject participantObject = response.getJSONObject("participant");
+                        Participant participant = gson.fromJson(participantObject.toString(),Participant.class);
                         callback.onParticipantAdded(participant);
                     }catch (JSONException e){
                         callback.addParticipantFailed("Något gick fel.");
@@ -105,7 +106,7 @@ public class EventManager {
                 @Override
                 public void onRequestFail(VolleyError error) {
                     if(error.networkResponse != null){
-                        Log.d("Request",new String(error.networkResponse.data));
+                        Log.d("Request", new String(error.networkResponse.data));
                         try {
                             JSONObject response = new JSONObject(new String(error.networkResponse.data));
                             callback.addParticipantFailed(response.getString("error"));

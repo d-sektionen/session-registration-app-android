@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:text="Välj det event du vill registrera deltagare för"
+            android:text="Välj det evenemang du vill registrera deltagare för"
             android:textColor="@color/primaryTextColor"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -90,7 +90,7 @@
             android:id="@+id/no_events_available_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Det finns inga events där du är tillåten registrera användare för :("
+            android:text="Det finns inga evenemang där du är tillåten registrera användare för :("
             android:textColor="@color/secondaryColor"
             android:textSize="18sp"
             android:visibility="gone"/>

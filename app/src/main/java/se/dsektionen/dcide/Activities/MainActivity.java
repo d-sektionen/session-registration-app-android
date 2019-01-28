@@ -2,6 +2,7 @@ package se.dsektionen.dcide.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,8 +41,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Event;
@@ -206,6 +209,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void showParticipantInfo(Participant participant) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_participant_info);
+        dialog.show();
+        TextView participantInfo = dialog.findViewById(R.id.participant_info_view);
+        participantInfo.setText("");
+        participantInfo.append("LiU-id: " + participant.getUsername() + "\n");
+        participantInfo.append("Namn: " + participant.getFirst_name() + " " +
+                participant.getLast_name() + "\n");
+        participantInfo.append("Diet: " + participant.getSpecial_diet() + "\n");
+        participantInfo.append("Dryckes preferens: " + participant.getDrink_preference() + "\n");
+        participantInfo.append("Gruppnamn: " + participant.getGroup_name() + "\n");
+
+        try {
+            JSONObject otherInfo = new JSONObject(participant.getOther_info());
+            Iterator<String> keys = otherInfo.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+                participantInfo.append(key + ": " + otherInfo.get(key) + "\n");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -307,32 +335,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
 
-            if (isInRegistrationMode) {
-                meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
-                    @Override
-                    public void onAttendantAdded(String response) {
-                        showResult("Deltagare " + response + " lades till", true);
-                    }
+            if(currentMeeting != null) {
+                if (isInRegistrationMode) {
+                    meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
+                        @Override
+                        public void onAttendantAdded(String response) {
+                            showResult("Deltagare " + response + " lades till", true);
+                        }
 
-                    @Override
-                    public void addAttendantFailed(String error) {
-                        showResult(error, false);
+                        @Override
+                        public void addAttendantFailed(String error) {
+                            showResult(error, false);
 
-                    }
-                });
-            } else {
-                meetingManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
-                    @Override
-                    public void onRemoveAttendant() {
-                        showResult("Deltagare borttagen", true);
-                    }
+                        }
+                    });
+                } else {
+                    meetingManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
+                        @Override
+                        public void onRemoveAttendant() {
+                            showResult("Deltagare borttagen", true);
+                        }
 
-                    @Override
-                    public void removeAttendantFailed(String error) {
-                        showResult(error, false);
-                    }
-                });
+                        @Override
+                        public void removeAttendantFailed(String error) {
+                            showResult(error, false);
+                        }
+                    });
+                }
+            } if(currentEvent != null) {
+                if (isInRegistrationMode) {
+                    eventManager.addParticipantWithId(idField.getText().toString().toLowerCase(), new AddParticipantCallback() {
+
+                        @Override
+                        public void onParticipantAdded(Participant participant) {
+                            showParticipantInfo(participant);
+                        }
+
+                        @Override
+                        public void addParticipantFailed(String error) {
+                            showResult(error, false);
+
+                        }
+                    });
+                } else {
+                    eventManager.removeParticipantWithId(idField.getText().toString().toLowerCase(), new RemoveParticipantCallback(){
+                        @Override
+                        public void onRemoveParticipant() {
+                            showResult("Deltagare borttagen", true);
+                        }
+
+                        @Override
+                        public void removeParticipantFailed(String error) {
+                            showResult(error, false);
+                        }});
+                }
             }
+
         } else {
             idView.setErrorEnabled(true);
             idView.setError("Inte ett giltigt Liu-ID");
@@ -367,7 +425,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onParticipantAdded(Participant participant) {
-                    showResult(participant + " lades till", true);                }
+                    showParticipantInfo(participant);
+                }
 
                 @Override
                 public void addParticipantFailed(String error) {
