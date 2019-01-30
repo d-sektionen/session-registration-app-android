@@ -252,6 +252,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             imageTask.execute("https://d-sektionen.se/downloads/logos/" + currentMeeting.getSection().getName().substring(0, 1).toLowerCase() + "-sek_logo.png");
         }
 
+        if (currentEvent != null) {
+            currentSessionTV.setText(currentEvent.getName());
+            DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
+            imageTask.execute("https://d-lan.se/static/dlan-logo.png");
+        }
+
         updateNFCView();
     }
 

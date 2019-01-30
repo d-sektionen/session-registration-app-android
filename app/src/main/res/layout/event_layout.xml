@@ -13,7 +13,7 @@
         android:id="@+id/event_name_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="D-Lan 2019"
+        android:text="Event x"
         android:textColor="@color/primaryTextColor"
         android:textSize="17sp"
         android:textStyle="normal" />
@@ -22,7 +22,7 @@
         android:id="@+id/event_time_interval_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1/2 18:00 till 3/2 13:00"
+        android:text=""
         android:textColor="@color/secondaryLightColor"
         android:textSize="15sp" />
 
