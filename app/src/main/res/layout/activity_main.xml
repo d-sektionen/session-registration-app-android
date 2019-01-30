@@ -71,10 +71,13 @@
             android:paddingEnd="20dp"
             android:text="Registera"
             android:textSize="20sp" />
+
         <RadioButton
             android:id="@+id/radioDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:alpha="0.5"
+            android:clickable="false"
             android:focusable="true"
             android:paddingStart="20dp"
             android:text="Ta bort"
