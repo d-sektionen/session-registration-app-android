@@ -22,9 +22,10 @@ import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.User;
 import se.dsektionen.dcide.R;
-import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
-import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
+import se.dsektionen.dcide.Utilities.Event;
+import se.dsektionen.dcide.Utilities.EventArrayAdapter;
 
 /**
  * Created by Gustav on 2017-11-13.
@@ -32,7 +33,7 @@ import se.dsektionen.dcide.Utilities.MeetingArrayAdapter;
 
 public class ChooseMeetingActivity extends AppCompatActivity {
 
-    ListView meetingListview;
+    ListView eventListView;
     DCideApp mApp;
     ProgressBar progressBar;
     TextView userInfo;
@@ -44,7 +45,7 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_choose_session);
-        meetingListview = findViewById(R.id.meeting_listView);
+        eventListView = findViewById(R.id.meeting_listView);
         progressBar = findViewById(R.id.meeting_loading_view);
         logout = findViewById(R.id.logout_button);
         userInfo = findViewById(R.id.logged_in_user);
@@ -52,11 +53,11 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         mApp = DCideApp.getInstance();
         setTitle("");
         final Context context = this;
-        mApp.getUserSessionManager().getMeetings(new MeetingRequestCallback() {
+        mApp.getUserSessionManager().getMeetings(new EventRequestCallback() {
             @Override
-            public void onGetMeetings(ArrayList<Meeting> meetings) {
-                MeetingArrayAdapter adapter = new MeetingArrayAdapter(meetings, context);
-                meetingListview.setAdapter(adapter);
+            public void onGetEvents(ArrayList<Event> events) {
+                EventArrayAdapter adapter = new EventArrayAdapter(events, context);
+                eventListView.setAdapter(adapter);
                 progressBar.setVisibility(View.GONE);
             }
 
@@ -67,10 +68,10 @@ public class ChooseMeetingActivity extends AppCompatActivity {
             }
         });
 
-        meetingListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mApp.getMeetingManager().setMeeting((Meeting) view.getTag());
+                mApp.getEventManager().setEvent((Meeting) view.getTag());
                 setResult(RESULT_OK);
                 finish();
             }
@@ -105,7 +106,7 @@ public class ChooseMeetingActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mApp.getMeetingManager().getMeeting() == null) {
+        if (mApp.getEventManager().getEvent() == null) {
             setResult(RESULT_CANCELED);
         } else {
             setResult(RESULT_OK);

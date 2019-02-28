@@ -1,14 +1,16 @@
 package se.dsektionen.dcide.JsonModels;
 
+import se.dsektionen.dcide.Utilities.Event;
+
 /**
  * Created by gustavaaro on 2018-02-26.
  */
 
 public class Scanner {
 
-    Meeting meeting;
+    Event event;
 
-    public Meeting getMeeting() {
-        return meeting;
+    public Event getEvent() {
+        return event;
     }
 }

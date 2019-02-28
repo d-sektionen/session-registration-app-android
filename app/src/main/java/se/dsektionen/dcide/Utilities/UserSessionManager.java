@@ -17,7 +17,7 @@ import se.dsektionen.dcide.JsonModels.Scanner;
 import se.dsektionen.dcide.JsonModels.User;
 import se.dsektionen.dcide.Requests.Callbacks.JsonArrayRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
-import se.dsektionen.dcide.Requests.Callbacks.MeetingRequestCallback;
+import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
 import se.dsektionen.dcide.Requests.RequestManager;
 
@@ -58,18 +58,18 @@ public class UserSessionManager {
         });
     }
 
-    public ArrayList<Meeting> getMeetings(final MeetingRequestCallback callback){
+    public ArrayList<Meeting> getMeetings(final EventRequestCallback callback){
 
         requestManager.doGetArrayRequest(subURL, new JsonArrayRequestCallback() {
             @Override
             public void onRequestSuccess(JSONArray response) {
                 Gson gson = new Gson();
                 Scanner scanners[] = gson.fromJson(response.toString(), Scanner[].class);
-                ArrayList<Meeting> meetings = new ArrayList<>();
+                ArrayList<Event> events = new ArrayList<>();
                 for (Scanner scanner: scanners){
-                    meetings.add(scanner.getMeeting());
+                    events.add(scanner.getEvent());
                 }
-                callback.onGetMeetings(meetings);
+                callback.onGetEvents(events);
             }
 
             @Override

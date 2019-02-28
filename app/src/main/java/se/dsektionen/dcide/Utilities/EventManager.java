@@ -16,38 +16,47 @@ import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
 import se.dsektionen.dcide.Requests.RequestManager;
 
+
 /**
  * Created by gustavaaro on 2018-02-26.
  */
 
-public class MeetingManager {
+public class EventManager {
 
-    private Meeting meeting;
+    private Event event;
     private RequestManager requestManager;
     private Gson gson;
-    private String subUrl = "/voting/attendants/";
+    private String getUrl = "/android/get_events_and_meetings/";
 
-    public MeetingManager(){
+    public EventManager(){
         this.requestManager = DCideApp.getInstance().getRequestManager();
         gson = new Gson();
     }
 
 
-    public Meeting getMeeting() {
-        return meeting;
+    public Event getEvent() {
+        return event;
     }
 
-    public void setMeeting(Meeting meeting) {
-        System.out.println("New meeting: " + meeting.getName());
-        this.meeting = meeting;
+    public void setEvent(Meeting event) {
+        System.out.println("New event: " + event.getName());
+        this.event = event;
     }
 
     public void addAttendantWithRfid(String rfid, final AddAttendantCallback callback){
         final JSONObject request = new JSONObject();
+        String url = "";
         try {
             request.put("card_id", rfid);
-            request.put("meeting",meeting.getId());
-            requestManager.doPostRequest(request, subUrl, new JsonObjectRequestCallback() {
+            switch ()
+            if (event.getType() == EventEnum.MEETING){
+                request.put("meeting", event.getId());
+                url = "/voting/attendants/";
+            } else if (event.getType() == EventEnum.EVENT){
+                request.put("event", event.getId());
+                url = "/android/events/show_up_participant/";
+            }
+            requestManager.doPostRequest(request, url, new JsonObjectRequestCallback() {
                 @Override
                 public void onRequestSuccess(JSONObject response) {
                     try {
@@ -84,9 +93,9 @@ public class MeetingManager {
         JSONObject request = new JSONObject();
         try {
             request.put("username", liuId);
-            request.put("meeting",meeting.getId());
+            request.put("event", event.getId());
             System.out.println(request.toString(2));
-            requestManager.doPostRequest(request, subUrl, new JsonObjectRequestCallback() {
+            requestManager.doPostRequest(request, getUrl, new JsonObjectRequestCallback() {
                 @Override
                 public void onRequestSuccess(JSONObject response) {
                     try {
@@ -120,7 +129,7 @@ public class MeetingManager {
     }
 
     public void removeAttendantwithRfid(String rfid, final RemoveAttendantCallback callback){
-        String url = subUrl + "?card_id=" + rfid + "&meeting=" +meeting.getId();
+        String url = getUrl + "?card_id=" + rfid + "&event=" + event.getId();
         requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
             @Override
             public void onRequestSuccess(JSONObject response) {
@@ -146,7 +155,7 @@ public class MeetingManager {
     }
 
     public void removeAttendantWithId(String liuId, final RemoveAttendantCallback callback){
-        String url = subUrl + "?username=" + liuId+ "&meeting=" +meeting.getId();
+        String url = getUrl + "?username=" + liuId+ "&event=" + event.getId();
         requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
             @Override
             public void onRequestSuccess(JSONObject response) {

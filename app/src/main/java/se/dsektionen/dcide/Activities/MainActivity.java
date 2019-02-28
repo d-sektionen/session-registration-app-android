@@ -47,7 +47,7 @@ import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
-import se.dsektionen.dcide.Utilities.MeetingManager;
+import se.dsektionen.dcide.Utilities.EventManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 
 /**
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CoordinatorLayout coordinatorLayout;
     private ScrollView scrollView;
     private TextInputLayout idView;
-    private MeetingManager meetingManager;
+    private EventManager eventManager;
     private boolean isInRegistrationMode = true;
 
     // Konverterar bytes till hexadecimal
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
-        meetingManager = DCideApp.getInstance().getMeetingManager();
+        eventManager = DCideApp.getInstance().getEventManager();
         RadioGroup actionGroup = findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (nfcForegroundUtil != null && mNfcAdapter != null) {
             nfcForegroundUtil.enableForeground();
         }
-        currentMeeting = DCideApp.getInstance().getMeetingManager().getMeeting();
+        currentMeeting = DCideApp.getInstance().getEventManager().getEvent();
 
         if (currentMeeting != null) {
             currentSessionTV.setText(currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
 
             if (isInRegistrationMode) {
-                meetingManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
+                eventManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
                     @Override
                     public void onAttendantAdded(String response) {
                         showResult("Deltagare " + response + " lades till", true);
@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
             } else {
-                meetingManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
+                eventManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
                     @Override
                     public void onRemoveAttendant() {
                         showResult("Deltagare borttagen", true);
@@ -345,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         String rfid = bin2int(tag.getId());
         if (isInRegistrationMode) {
-            meetingManager.addAttendantWithRfid(rfid, new AddAttendantCallback() {
+            eventManager.addAttendantWithRfid(rfid, new AddAttendantCallback() {
                 @Override
                 public void onAttendantAdded(String response) {
                     showResult(response + " lades till", true);
@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
         } else {
-            meetingManager.removeAttendantwithRfid(rfid, new RemoveAttendantCallback() {
+            eventManager.removeAttendantwithRfid(rfid, new RemoveAttendantCallback() {
                 @Override
                 public void onRemoveAttendant() {
                     showResult("Deltagare borttagen", true);

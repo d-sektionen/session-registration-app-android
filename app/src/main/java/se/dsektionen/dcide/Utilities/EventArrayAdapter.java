@@ -16,24 +16,24 @@ import se.dsektionen.dcide.R;
  * Created by gustavaaro on 2018-02-26.
  */
 
-public class MeetingArrayAdapter extends BaseAdapter {
+public class EventArrayAdapter extends BaseAdapter {
 
-    private ArrayList<Meeting> meetings;
+    private ArrayList<Event> events;
     private Context context;
 
-    public MeetingArrayAdapter(ArrayList<Meeting> meetings, Context context){
-        this.meetings = meetings;
+    public EventArrayAdapter(ArrayList<Event> events, Context context){
+        this.events = events;
         this.context = context;
     }
 
     @Override
     public int getCount() {
-        return meetings.size();
+        return events.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return meetings.get(position);
+        return events.get(position);
     }
 
     @Override
@@ -51,9 +51,9 @@ public class MeetingArrayAdapter extends BaseAdapter {
         TextView name = convertView.findViewById(R.id.meeting_name_textview);
         TextView section = convertView.findViewById(R.id.meeting_section_textview);
 
-        convertView.setTag(meetings.get(position));
-        name.setText(meetings.get(position).getName());
-        section.setText(meetings.get(position).getSection().getName());
+        convertView.setTag(events.get(position));
+        name.setText(events.get(position).getName());
+        section.setText(events.get(position).getSection().getName());
 
 
         return convertView;

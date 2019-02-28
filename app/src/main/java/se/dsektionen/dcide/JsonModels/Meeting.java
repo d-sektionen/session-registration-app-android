@@ -1,21 +1,18 @@
 package se.dsektionen.dcide.JsonModels;
 
+import se.dsektionen.dcide.Utilities.EventEnum;
+import se.dsektionen.dcide.Utilities.Event;
+
 /**
  * Created by gustavaaro on 2018-02-26.
  */
 
-public class Meeting {
+public class Meeting extends Event {
 
-
-    private int id;
-    private String name;
     private Section section;
     private boolean archived;
 
 
-    public int getId() {
-        return id;
-    }
 
     public Section getSection() {
         return section;
@@ -25,13 +22,7 @@ public class Meeting {
         this.section = section;
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public boolean isArchived() {
         return archived;
