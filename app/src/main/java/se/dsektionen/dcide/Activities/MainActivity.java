@@ -2,6 +2,7 @@ package se.dsektionen.dcide.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,16 +41,24 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Event;
+import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.JsonModels.Participant;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
+import se.dsektionen.dcide.Requests.Callbacks.AddParticipantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
+import se.dsektionen.dcide.Requests.Callbacks.RemoveParticipantCallback;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
-import se.dsektionen.dcide.JsonModels.Event;
+import se.dsektionen.dcide.Utilities.EventEnum;
 import se.dsektionen.dcide.Utilities.EventManager;
+import se.dsektionen.dcide.Utilities.MeetingManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 
 /**
@@ -139,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         eventManager = DCideApp.getInstance().getEventManager();
+
         RadioGroup actionGroup = findViewById(R.id.action_group);
         actionGroup.setOnCheckedChangeListener(this);
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -197,6 +207,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void showParticipantInfo(Participant participant) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_participant_info);
+        dialog.show();
+        TextView participantInfo = dialog.findViewById(R.id.participant_info_view);
+        participantInfo.setText("");
+        participantInfo.append("LiU-id: " + participant.getUsername() + "\n");
+        participantInfo.append("Namn: " + participant.getFirst_name() + " " +
+                participant.getLast_name() + "\n");
+        participantInfo.append("Diet: " + participant.getSpecial_diet() + "\n");
+        participantInfo.append("Dryckes preferens: " + participant.getDrink_preference() + "\n");
+        participantInfo.append("Gruppnamn: " + participant.getGroup_name() + "\n");
+
+        try {
+            JSONObject otherInfo = new JSONObject(participant.getOther_info());
+            Iterator<String> keys = otherInfo.keys();
+            while(keys.hasNext()) {
+                String key = keys.next();
+                participantInfo.append(key + ": " + otherInfo.get(key) + "\n");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -208,10 +243,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         currentEvent = DCideApp.getInstance().getEventManager().getEvent();
 
+
         if (currentEvent != null) {
-            currentSessionTV.setText(currentEvent.getName() + " för " + currentEvent.getSection().getName());
+            currentSessionTV.setText(currentEvent.getName());
             DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
-            imageTask.execute("https://d-sektionen.se/downloads/logos/" + currentEvent.getSection().getName().substring(0, 1).toLowerCase() + "-sek_logo.png");
+            imageTask.execute("https://d-lan.se/static/dlan-logo.png");
         }
 
         updateNFCView();
@@ -296,37 +332,72 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             idView.setErrorEnabled(false);
             InputMethodManager inputMethodManager = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
-
+        } if(currentEvent != null) {
             if (isInRegistrationMode) {
-                eventManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
-                    @Override
-                    public void onAttendantAdded(String response) {
-                        showResult("Deltagare " + response + " lades till", true);
-                    }
+                if (currentEvent.getType() == EventEnum.EVENT){
+                    eventManager.addParticipantWithId(idField.getText().toString().toLowerCase(), new AddParticipantCallback() {
 
-                    @Override
-                    public void addAttendantFailed(String error) {
-                        showResult(error, false);
+                        @Override
+                        public void onParticipantAdded(Participant participant) {
+                            showParticipantInfo(participant);
+                        }
 
-                    }
-                });
-            } else {
-                try {
+                        @Override
+                        public void addParticipantFailed(String error) {
+                            showResult(error, false);
+
+                        }
+                    });
+
+                } else {
+                    eventManager.addAttendantWithId(idField.getText().toString().toLowerCase(), new AddAttendantCallback() {
+
+
+                        @Override
+                        public void onAttendantAdded(String response) {
+                            showResult(response.toString(),true);
+                        }
+
+                        @Override
+                        public void addAttendantFailed(String error) {
+                            showResult(error, false);
+                        }
+                    });
+                }
+
+
+            }else {
+                if(currentEvent.getType() == EventEnum.MEETING){
                     eventManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
+
+
                         @Override
                         public void onRemoveAttendant() {
-                            showResult("Deltagare borttagen", true);
+                            showResult("Deltagare bortagen",true);
+
                         }
 
                         @Override
                         public void removeAttendantFailed(String error) {
+                            showResult(error,true);
+
+                        }
+                    });
+
+                } else {
+                    eventManager.removeParticipantWithId(idField.getText().toString().toLowerCase(), new RemoveParticipantCallback() {
+                        @Override
+                        public void onRemoveParticipant() {
+                            showResult("Deltagare bortagen", true);
+                        }
+
+                        @Override
+                        public void removeParticipantFailed(String error) {
                             showResult(error, false);
                         }
                     });
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+                }}
+
         } else {
             idView.setErrorEnabled(true);
             idView.setError("Inte ett giltigt Liu-ID");
@@ -340,15 +411,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentEvent != null) {
-            try {
+            if (currentEvent.getType() == EventEnum.MEETING) {
                 getTagInfo(intent);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else if (currentEvent.getType() == EventEnum.EVENT) {
+                try {
+                    getEventTagInfo(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+    private void getEventTagInfo(Intent intent) throws JSONException {
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        v.vibrate(30);
 
-    private void getTagInfo(Intent intent) throws JSONException {
+        String rfid = bin2int(tag.getId());
+        if (isInRegistrationMode) {
+            eventManager.addParticipantWithRfid(rfid, new AddParticipantCallback() {
+
+                @Override
+                public void onParticipantAdded(Participant participant) {
+                    showParticipantInfo(participant);
+                }
+
+                @Override
+                public void addParticipantFailed(String error) {
+                    showResult(error, false);
+
+                }
+            });
+        } else {
+            eventManager.removeParticipantwithRfid(rfid, new RemoveParticipantCallback(){
+                @Override
+                public void onRemoveParticipant() {
+                    showResult("Deltagare borttagen", true);
+                }
+
+                @Override
+                public void removeParticipantFailed(String error) {
+                    showResult(error, false);
+                }});
+        }}
+
+    private void getTagInfo(Intent intent) {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         v.vibrate(30);

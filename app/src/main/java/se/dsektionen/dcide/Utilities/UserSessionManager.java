@@ -16,9 +16,9 @@ import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.Scanner;
 import se.dsektionen.dcide.JsonModels.User;
+import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonArrayRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
-import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
 import se.dsektionen.dcide.Requests.RequestManager;
 

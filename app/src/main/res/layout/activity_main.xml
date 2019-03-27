@@ -71,6 +71,7 @@
             android:paddingEnd="20dp"
             android:text="Registera"
             android:textSize="20sp" />
+
         <RadioButton
             android:id="@+id/radioDelete"
             android:layout_width="wrap_content"
