@@ -1,16 +1,9 @@
 package se.dsektionen.dcide.Utilities;
 
+import com.google.gson.annotations.SerializedName;
+
 public enum EventEnum {
-    MEETING(1),
-    EVENT(2);
-
-    public int getValue() {
-        return value;
-    }
-
-    private int value;
-    EventEnum(int i) {
-        this.value = value;
-    }
+    @SerializedName("meeting_type") MEETING,
+    @SerializedName("event_type") EVENT
 
 }

@@ -1,8 +1,5 @@
 package se.dsektionen.dcide.JsonModels;
 
-import se.dsektionen.dcide.Utilities.EventEnum;
-import se.dsektionen.dcide.Utilities.Event;
-
 /**
  * Created by gustavaaro on 2018-02-26.
  */

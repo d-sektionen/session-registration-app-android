@@ -24,7 +24,7 @@ import se.dsektionen.dcide.JsonModels.User;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.EventRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.UserResponseCallback;
-import se.dsektionen.dcide.Utilities.Event;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.Utilities.EventArrayAdapter;
 
 /**
@@ -53,7 +53,7 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         mApp = DCideApp.getInstance();
         setTitle("");
         final Context context = this;
-        mApp.getUserSessionManager().getMeetings(new EventRequestCallback() {
+        mApp.getUserSessionManager().getEvents(new EventRequestCallback() {
             @Override
             public void onGetEvents(ArrayList<Event> events) {
                 EventArrayAdapter adapter = new EventArrayAdapter(events, context);
@@ -71,7 +71,7 @@ public class ChooseMeetingActivity extends AppCompatActivity {
         eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mApp.getEventManager().setEvent((Meeting) view.getTag());
+                mApp.getEventManager().setEvent((Event) view.getTag());
                 setResult(RESULT_OK);
                 finish();
             }

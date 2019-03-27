@@ -39,14 +39,16 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import java.lang.reflect.Field;
 
 import se.dsektionen.dcide.DCideApp;
-import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.R;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
 import se.dsektionen.dcide.Requests.DownloadImageTask;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.Utilities.EventManager;
 import se.dsektionen.dcide.Utilities.NFCForegroundUtil;
 
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     };
-    private Meeting currentMeeting;
+    private Event currentEvent;
     private CoordinatorLayout coordinatorLayout;
     private ScrollView scrollView;
     private TextInputLayout idView;
@@ -204,12 +206,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (nfcForegroundUtil != null && mNfcAdapter != null) {
             nfcForegroundUtil.enableForeground();
         }
-        currentMeeting = DCideApp.getInstance().getEventManager().getEvent();
+        currentEvent = DCideApp.getInstance().getEventManager().getEvent();
 
-        if (currentMeeting != null) {
-            currentSessionTV.setText(currentMeeting.getName() + " för " + currentMeeting.getSection().getName());
+        if (currentEvent != null) {
+            currentSessionTV.setText(currentEvent.getName() + " för " + currentEvent.getSection().getName());
             DownloadImageTask imageTask = new DownloadImageTask(sectionIcon);
-            imageTask.execute("https://d-sektionen.se/downloads/logos/" + currentMeeting.getSection().getName().substring(0, 1).toLowerCase() + "-sek_logo.png");
+            imageTask.execute("https://d-sektionen.se/downloads/logos/" + currentEvent.getSection().getName().substring(0, 1).toLowerCase() + "-sek_logo.png");
         }
 
         updateNFCView();
@@ -309,17 +311,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
             } else {
-                eventManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
-                    @Override
-                    public void onRemoveAttendant() {
-                        showResult("Deltagare borttagen", true);
-                    }
+                try {
+                    eventManager.removeAttendantWithId(idField.getText().toString().toLowerCase(), new RemoveAttendantCallback() {
+                        @Override
+                        public void onRemoveAttendant() {
+                            showResult("Deltagare borttagen", true);
+                        }
 
-                    @Override
-                    public void removeAttendantFailed(String error) {
-                        showResult(error, false);
-                    }
-                });
+                        @Override
+                        public void removeAttendantFailed(String error) {
+                            showResult(error, false);
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             idView.setErrorEnabled(true);
@@ -333,12 +339,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentMeeting != null) {
-            getTagInfo(intent);
+        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction()) && currentEvent != null) {
+            try {
+                getTagInfo(intent);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void getTagInfo(Intent intent) {
+    private void getTagInfo(Intent intent) throws JSONException {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         v.vibrate(30);

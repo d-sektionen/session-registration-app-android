@@ -2,8 +2,7 @@ package se.dsektionen.dcide.Requests.Callbacks;
 
 import java.util.ArrayList;
 
-import se.dsektionen.dcide.JsonModels.Meeting;
-import se.dsektionen.dcide.Utilities.Event;
+import se.dsektionen.dcide.JsonModels.Event;
 
 /**
  * Created by gustavaaro on 2018-02-26.

@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.R;
 
 /**

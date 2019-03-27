@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import se.dsektionen.dcide.DCideApp;
 import se.dsektionen.dcide.JsonModels.Attendant;
-import se.dsektionen.dcide.JsonModels.Meeting;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.Requests.Callbacks.AddAttendantCallback;
 import se.dsektionen.dcide.Requests.Callbacks.JsonObjectRequestCallback;
 import se.dsektionen.dcide.Requests.Callbacks.RemoveAttendantCallback;
@@ -38,7 +38,7 @@ public class EventManager {
         return event;
     }
 
-    public void setEvent(Meeting event) {
+    public void setEvent(Event event) {
         System.out.println("New event: " + event.getName());
         this.event = event;
     }
@@ -47,14 +47,14 @@ public class EventManager {
         final JSONObject request = new JSONObject();
         String url = "";
         try {
+            request.put("action", "rfid");
             request.put("card_id", rfid);
-            switch ()
             if (event.getType() == EventEnum.MEETING){
                 request.put("meeting", event.getId());
-                url = "/voting/attendants/";
+                url = "/android/voting/attendants/";
             } else if (event.getType() == EventEnum.EVENT){
                 request.put("event", event.getId());
-                url = "/android/events/show_up_participant/";
+                url = "/android/events/participants/show_up_participant/";
             }
             requestManager.doPostRequest(request, url, new JsonObjectRequestCallback() {
                 @Override
@@ -83,7 +83,7 @@ public class EventManager {
                     }
                 }
             });
-        }catch (JSONException e){
+        } catch (JSONException e){
             callback.addAttendantFailed("Bad JSON");
         }
 
@@ -93,6 +93,7 @@ public class EventManager {
         JSONObject request = new JSONObject();
         try {
             request.put("username", liuId);
+            request.put("action", "liu_id");
             request.put("event", event.getId());
             System.out.println(request.toString(2));
             requestManager.doPostRequest(request, getUrl, new JsonObjectRequestCallback() {
@@ -128,60 +129,124 @@ public class EventManager {
 
     }
 
-    public void removeAttendantwithRfid(String rfid, final RemoveAttendantCallback callback){
-        String url = getUrl + "?card_id=" + rfid + "&event=" + event.getId();
-        requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
-            @Override
-            public void onRequestSuccess(JSONObject response) {
-                callback.onRemoveAttendant();
-            }
+    public void removeAttendantwithRfid(String rfid, final RemoveAttendantCallback callback) throws JSONException {
 
-            @Override
-            public void onRequestFail(VolleyError error) {
-                if(error.networkResponse != null){
-                    Log.d("Request",new String(error.networkResponse.data));
-                    try {
-                        JSONObject response = new JSONObject(new String(error.networkResponse.data));
-                        callback.removeAttendantFailed(response.getString("error"));
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                } else {
-                    callback.removeAttendantFailed("Något gick fel");
+        if (event.getType() == EventEnum.MEETING){
+            String url = getUrl + "?card_id=" + rfid + "&event=" + event.getId();
+            requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
+                @Override
+                public void onRequestSuccess(JSONObject response) {
+                    callback.onRemoveAttendant();
                 }
-            }
-        });
+
+                @Override
+                public void onRequestFail(VolleyError error) {
+                    if(error.networkResponse != null){
+                        Log.d("Request",new String(error.networkResponse.data));
+                        try {
+                            JSONObject response = new JSONObject(new String(error.networkResponse.data));
+                            callback.removeAttendantFailed(response.getString("error"));
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    } else {
+                        callback.removeAttendantFailed("Något gick fel");
+                    }
+                }
+            });            url = "/android/voting/attendants/";
+        }
+
+        else if (event.getType() == EventEnum.EVENT) {
+            final JSONObject request = new JSONObject();
+            String url = "";
+            request.put("action", "rfid");
+            request.put("card_id", rfid);
+            request.put("event", event.getId());
+            url = "/android/events/participants/un_show_up_participant/";
+            requestManager.doPostRequest(request, url, new JsonObjectRequestCallback() {
+                @Override
+                public void onRequestSuccess(JSONObject response) {
+                    callback.onRemoveAttendant();
+                }
+
+                @Override
+                public void onRequestFail(VolleyError error) {
+                    if(error.networkResponse != null){
+                        Log.d("Request",new String(error.networkResponse.data));
+                        try {
+                            JSONObject response = new JSONObject(new String(error.networkResponse.data));
+                            callback.removeAttendantFailed(response.getString("error"));
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    } else {
+                        callback.removeAttendantFailed("Något gick fel");
+                    }
+                }
+            });
+        }
+
 
     }
 
-    public void removeAttendantWithId(String liuId, final RemoveAttendantCallback callback){
-        String url = getUrl + "?username=" + liuId+ "&event=" + event.getId();
-        requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
-            @Override
-            public void onRequestSuccess(JSONObject response) {
-                callback.onRemoveAttendant();
-            }
+    public void removeAttendantWithId(String liuId, final RemoveAttendantCallback callback) throws JSONException {
+        if (event.getType() == EventEnum.MEETING) {
 
-            @Override
-            public void onRequestFail(VolleyError error) {
-                Log.d("Request",error.getLocalizedMessage() + " ");
-
-                if(error.networkResponse != null){
-                    Log.d("Request",new String(error.networkResponse.data));
-                    try {
-                        JSONObject response = new JSONObject(new String(error.networkResponse.data));
-                        callback.removeAttendantFailed(response.getString("error"));
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                } else {
-                    callback.removeAttendantFailed("Något gick fel");
+            String url = getUrl + "?username=" + liuId + "&event=" + event.getId();
+            requestManager.doDeleteRequest(url, new JsonObjectRequestCallback() {
+                @Override
+                public void onRequestSuccess(JSONObject response) {
+                    callback.onRemoveAttendant();
                 }
-            }
-        });
 
+                @Override
+                public void onRequestFail(VolleyError error) {
+                    Log.d("Request", error.getLocalizedMessage() + " ");
+
+                    if (error.networkResponse != null) {
+                        Log.d("Request", new String(error.networkResponse.data));
+                        try {
+                            JSONObject response = new JSONObject(new String(error.networkResponse.data));
+                            callback.removeAttendantFailed(response.getString("error"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        callback.removeAttendantFailed("Något gick fel");
+                    }
+                }
+            });
+
+
+        } else if(event.getType() == EventEnum.EVENT){
+            final JSONObject request = new JSONObject();
+            String url = "";
+            request.put("event", event.getId());
+            request.put("action", "liu_id");
+
+            url = "/android/events/participants/un_show_up_participant/";
+            requestManager.doPostRequest(request, url, new JsonObjectRequestCallback() {
+                @Override
+                public void onRequestSuccess(JSONObject response) {
+                    callback.onRemoveAttendant();
+                }
+
+                @Override
+                public void onRequestFail(VolleyError error) {
+                    if(error.networkResponse != null){
+                        Log.d("Request",new String(error.networkResponse.data));
+                        try {
+                            JSONObject response = new JSONObject(new String(error.networkResponse.data));
+                            callback.removeAttendantFailed(response.getString("error"));
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    } else {
+                        callback.removeAttendantFailed("Något gick fel");
+                    }
+                }
+            });
+        }
 
     }
-
-
 }

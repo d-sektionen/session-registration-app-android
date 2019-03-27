@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import se.dsektionen.dcide.DCideApp;
+import se.dsektionen.dcide.JsonModels.Event;
 import se.dsektionen.dcide.JsonModels.Meeting;
 import se.dsektionen.dcide.JsonModels.Scanner;
 import se.dsektionen.dcide.JsonModels.User;
@@ -33,7 +34,7 @@ public class UserSessionManager {
     private RequestManager requestManager;
     private User user;
 
-    private String subURL = "/voting/scanners";
+    private String subURL = "/android/get_events_and_meetings/";
 
 
     public UserSessionManager(Context context){
@@ -58,7 +59,7 @@ public class UserSessionManager {
         });
     }
 
-    public ArrayList<Meeting> getMeetings(final EventRequestCallback callback){
+    public ArrayList<Event> getEvents(final EventRequestCallback callback){
 
         requestManager.doGetArrayRequest(subURL, new JsonArrayRequestCallback() {
             @Override
@@ -78,7 +79,7 @@ public class UserSessionManager {
             }
         });
 
-        return new ArrayList<Meeting>();
+        return new ArrayList<Event>();
     }
 
     public boolean hasToken(){
